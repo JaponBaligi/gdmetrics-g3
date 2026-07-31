@@ -24,37 +24,21 @@ A Godot EditorPlugin that analyzes GDScript code complexity using Cyclomatic Com
 
 - **Cyclomatic Complexity (CC)**: Measures the number of linearly independent paths through code
 - **Cognitive Complexity (C-COG)**: Measures code readability and maintainability
-- **Multi-version Support**: Works with Godot 3.5 LTS and Godot 4.2+
+- **Godot 3.x**: Built for Godot 3.5 LTS (see [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) for Godot 4.x)
 - **CLI Mode**: Run analysis from command line for CI/CD integration
-- **Editor Integration**: Visual complexity warnings in the script editor
+- **Editor Integration**: Dock panel with complexity results in the editor
 - **JSON Reports**: Export detailed analysis reports
 - **CSV Reports**: Export per-function metrics
 - **Configurable Thresholds**: Set custom complexity limits
 
 ## Installation
 
-### Choose Your Branch
-
-This repository uses separate branches for different Godot versions:
-
-- **Godot 3.x**: Use the `main` branch (default)
-- **Godot 4.x**: Use the `godot4` branch
-
-### Installation Steps
-
-**For Godot 3.x:**
 ```bash
-git clone https://github.com/JaponBaligi/gdmetrics
-cd gdmetrics
-# Already on main branch, or: git checkout main
+git clone https://github.com/JaponBaligi/gdmetrics-g3
+cd gdmetrics-g3
 ```
 
-**For Godot 4.x:**
-```bash
-git clone https://github.com/JaponBaligi/gdmetrics
-cd gdmetrics
-git checkout godot4
-```
+For Godot 4.x, use [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) instead.
 
 Then:
 1. Copy the `addons/gdscript_complexity` folder to your Godot project's `addons/` directory
@@ -66,18 +50,17 @@ Then:
 
 **This plugin is a source-based addon with no prebuilt binaries.** Version numbers indicate code maturity, not binary stability.
 
+This repository supports **Godot 3.x** only. Godot 4.x lives in [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4).
+
 | Godot Version | Support Level | CI Testing | Notes |
 |---------------|---------------|------------|-------|
-| 4.x (tested on 4.2) | ✅ **Actively supported** | ✅ Yes | Recommended for new projects; full CC and C-COG metrics; `match`/`case` support; highest accuracy (90-93%) |
-| 3.5.x LTS | ⚠️ **Legacy / Experimental** | ❌ No | Historical support; core metrics work; lower accuracy (85-90%) due to parser limitations; for existing projects only |
+| 3.5.x LTS | ⚠️ **Legacy / Experimental** | ❌ No | Core metrics work; lower accuracy (85-90%) due to parser limitations; for existing projects |
 | 3.0-3.4 | ⚠️ **Legacy / Experimental** | ❌ No | Not officially tested; best-effort support; not recommended for new projects |
-| 4.0-4.1 | ✅ **Supported** | ❌ No* | Should work identically to 4.2; contact maintainer for specific version testing |
-| 4.3+ | ⚠️ **Forward compatible** | ❌ No* | Untested; likely works but not officially verified |
 
 **Why Godot 3.x is not CI-tested:**
-Upstream Godot 3.x binary availability is limited. CI infrastructure focuses on Godot 4.2 (headless mode) to ensure test reproducibility and reliability. Godot 3.5.x remains acceptable for legacy projects but is not actively maintained.
+Upstream Godot 3.x binary availability is limited. Automated CI lives in [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) (Godot 4.2 headless).
 
-**Recommendation:** Use **Godot 4.x for new projects**. For existing Godot 3.5 LTS projects, this tool provides useful complexity metrics with reasonable accuracy.
+**Recommendation:** Prefer [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) for new projects. Use this repo for existing Godot 3.5 LTS projects.
 
 For detailed compatibility information, see [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
@@ -93,17 +76,11 @@ For detailed compatibility information, see [docs/COMPATIBILITY.md](docs/COMPATI
 
 ### CLI Mode
 
-**Godot 4.x:**
-```bash
-godot --headless --script cli/ci_test.gd -- --project-path . --output report.json --csv-output report.csv
-```
-
-**Godot 3.5:**
 ```bash
 godot --script cli/ci_test.gd -- --project-path . --output report.json --csv-output report.csv
 ```
 
-The report will be written to `report.json`. On Godot 3.5, a fallback copy is also written to `user://ci_report_fallback.json` (see `OS.get_user_data_dir()` for location).
+The report will be written to `report.json`. A fallback copy is also written to `user://ci_report_fallback.json` (see `OS.get_user_data_dir()` for location).
 
 ## Example Output
 
@@ -263,7 +240,7 @@ Set `"report.auto_export": true` to automatically write reports after analysis. 
 
 ## Troubleshooting
 
-- **No editor annotations**: Godot 3.x does not support editor annotations. On Godot 4.x, if annotations are unavailable, the plugin logs warnings to the console.
+- **No editor annotations**: Godot 3.x does not support editor annotations.
 - **CSV not generated**: Ensure `report.formats` includes `csv`, set `report.csv_output_path`, or pass `--csv-output` in CLI mode.
 - **Files analyzed: 0**: Check `include`/`exclude` patterns and confirm the project contains `.gd` files under `res://`.
 - **Stale results**: Disable caching (`performance.enable_caching = false`) or delete the cache directory.
@@ -272,32 +249,19 @@ Set `"report.auto_export": true` to automatically write reports after analysis. 
 ## FAQ
 
 - **Does it modify my scripts?** No. It only reads `.gd` files and generates reports.
-- **Why is Godot 3.x less accurate?** Godot 3.x has fewer parser hooks and a different grammar; the analyzer uses heuristics.
-- **Which branch should I use?** `main` for Godot 3.x, `godot4` for Godot 4.x.
+- **Why is accuracy lower than Godot 4?** Godot 3.x has fewer parser hooks and a different grammar; the analyzer uses heuristics.
+- **Need Godot 4.x?** Use [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4).
 - **Can I disable editor warnings?** Yes. Set `report.annotate_editor` to `false`.
 
+## Godot 3.x Features
 
-
-## Godot 3.x vs 4.x: Key Differences
-
-### Godot 4.x (Supported via `godot4` branch)
-
-✅ **Full support**
-- All metrics available (CC, C-COG)
-- `match`/`case` statements supported
-- Annotation-based editor integration
-- Highest accuracy (90-93%)
-
-### Godot 3.x (Supported via `main` branch)
-
-⚠️ **Best-effort support**
+⚠️ **Best-effort / legacy support**
 - All core metrics work (CC, C-COG)
 - No `match` statement support (language limitation)
-- Limited editor integration
-- Lower accuracy due to block-oriented parser (85-90%)
-- Confidence scores capped at 0.90 max
+- Limited editor integration (no annotations)
+- Typical accuracy 85-90%; confidence scores capped at 0.90 max
 
-**Recommendation**: For new projects, use Godot 4.x. For Godot 3.5 LTS projects, this tool provides useful metrics with reasonable accuracy.
+For Godot 4.x features and CI-tested builds, see [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4).
 
 ## Complexity Metrics
 
@@ -359,7 +323,7 @@ godot --headless --script tests/validate_confidence.gd -- --step 0.1 --apply
 **CI Environment:**
 - **Godot Version**: 4.2.0 (headless mode only)
 - **OS**: Ubuntu Linux (latest)
-- **Frequency**: On every push to `godot4` branch, pull request, and tagged releases
+- **Frequency**: Manual / local testing only (no automated Godot 3.x CI in this repository)
 - **Status**: See GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 
 ### Fixture Files & Tokenization Errors
@@ -471,7 +435,7 @@ Confidence scores estimate parse reliability. Use `tests/validate_confidence.gd`
 ### Distribution Channels
 
 **GitHub Releases:**
-- Official release packages available at https://github.com/JaponBaligi/gdmetrics/releases
+- Official release packages available at https://github.com/JaponBaligi/gdmetrics-g3/releases
 - Each release includes the `gdscript_complexity` addon zipped with documentation
 
 **itch.io:**
@@ -498,7 +462,7 @@ For detailed breaking changes, see the [BREAKING_CHANGES.md](docs/BREAKING_CHANG
 ### Current Release (v0.1.1)
 - ✅ CC and C-COG metrics
 - ✅ JSON and CSV export
-- ✅ Godot 3.x and 4.x support
+- ✅ Godot 3.x support
 - ✅ Caching system
 - ✅ CLI integration
 
