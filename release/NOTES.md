@@ -1,17 +1,25 @@
-## GDMetrics for Godot 3 — v0.1.3
+## GDMetrics for Godot 3 — v0.2.0
 
-Early release / pre-stable. Breaking changes may still occur before v1.0.
+Pride Versioning **DEFAULT** release (`PROUD.DEFAULT.SHAME`). Early / pre-stable until 1.0.0.
 
 ### Highlights
-- Line-continuation (`\`), match-arm scoring, ternary/`&&`/`||` handling
-- Tokenizer fixes for `$` paths, annotations, triple-string trail/`\` cases
-- External project host CLI (`tests/analyze_external.gd`)
-- Edge-case fixtures + corpus validation against real Godot 3 projects (`D:\test-3`: 21/21, 0 soft token errors)
+- **CI threshold gates**: `cc.threshold_fail` / `cog.threshold_fail` return exit code `1` with a breach summary
+- Consumer CLI: `cli/analyze_project.gd` (exit `0` / `1` / `2`)
+- Release zip includes `cli/` and `examples/github-actions/`
+- Drop-in GitHub Actions template for PR complexity gates (Godot 3.5.3 headless)
+- Docs: Pride Versioning + distribution notes (`docs/DISTRIBUTION.md`)
 
 ### Install
-1. Download `gdmetrics-v0.1.3.zip`
-2. Copy `addons/gdscript_complexity/` into your Godot 3 project
+1. Download `gdmetrics-v0.2.0.zip`
+2. Copy `addons/gdscript_complexity/` and `cli/` into your Godot 3.x project
 3. Project → Project Settings → Plugins → enable **GDScript Complexity Analyzer**
+4. Optional: copy `examples/github-actions/complexity-check.yml` into `.github/workflows/`
+
+### CLI
+```bash
+godot --no-window -s cli/analyze_project.gd -- \
+  --project-path . --output report.json --csv-output report.csv
+```
 
 ### Docs
-See `README.md`, `docs/USER_GUIDE.md`, `docs/EDGE_CASES.md`, and `docs/COMPATIBILITY.md` in the zip.
+See `README.md`, `docs/USER_GUIDE.md`, `docs/DISTRIBUTION.md`, and `docs/COMPATIBILITY.md` in the zip.
