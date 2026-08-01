@@ -8,9 +8,11 @@ Main components:
 - **Plugin/UI**: `addons/gdscript_complexity/plugin.gd` and dock UI. Handles user actions and displays results.
 - **Async analysis**: `addons/gdscript_complexity/gd3/async_analyzer.gd` runs analysis without blocking the editor.
 - **Batch analyzer**: `src/batch_analyzer.gd` coordinates parsing, metrics, caching, and reporting.
-- **Parsing + metrics**: `src/gd3/tokenizer.gd`, `src/control_flow_detector.gd`, `src/cc_calculator.gd`, `src/cog_complexity_calculator.gd`, `src/confidence_calculator.gd`.
-- **Reporting**: `src/gd3/report_generator.gd`.
+- **Shared core** (`src/core/`): calculators, detectors, `threshold_gate`, `history_store`, `error_*`, `logger`. Synced from gdmetrics-g4 via `scripts/sync_core.ps1`.
+- **Parsing + metrics**: `src/gd3/tokenizer.gd`, `src/core/control_flow_detector.gd`, `src/core/cc_calculator.gd`, `src/core/cog_complexity_calculator.gd`, `src/core/confidence_calculator.gd`.
+- **Reporting**: `src/gd3/report_generator.gd` (schema `"version": "1.0"`; see [SCHEMA.md](SCHEMA.md)).
 - **Configuration**: `src/config_manager.gd` and `complexity_config.json`.
+- **Editor**: on-demand Analyze Project only; no real-time ScriptEditor annotations on Godot 3 (see g4 for annotations).
 
 ## Parser Design
 

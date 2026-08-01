@@ -1,4 +1,4 @@
-﻿tool
+tool
 extends EditorPlugin
 const _VERBOSE_TRACE = false
 
@@ -17,7 +17,7 @@ var last_project_result = null
 var logger = null
 
 func _enter_tree():
-	logger = load(ADDON_SRC + "logger.gd").new()
+	logger = load(ADDON_SRC + "core/logger.gd").new()
 	logger.log_message("info", "Plugin entering tree")
 	
 	godot_version = Engine.get_version_info()
@@ -146,17 +146,17 @@ func _exit_tree():
 func _unload_script_cache():
 	var paths = [
 		ADDON_SRC + "batch_analyzer.gd",
-		ADDON_SRC + "control_flow_detector.gd",
-		ADDON_SRC + "function_detector.gd",
-		ADDON_SRC + "class_detector.gd",
-		ADDON_SRC + "cc_calculator.gd",
-		ADDON_SRC + "cog_complexity_calculator.gd",
-		ADDON_SRC + "confidence_calculator.gd",
+		ADDON_SRC + "core/control_flow_detector.gd",
+		ADDON_SRC + "core/function_detector.gd",
+		ADDON_SRC + "core/class_detector.gd",
+		ADDON_SRC + "core/cc_calculator.gd",
+		ADDON_SRC + "core/cog_complexity_calculator.gd",
+		ADDON_SRC + "core/confidence_calculator.gd",
 		ADDON_SRC + "config_manager.gd",
 		ADDON_SRC + "cache_manager.gd",
-		ADDON_SRC + "logger.gd",
-		ADDON_SRC + "error_codes.gd",
-		ADDON_SRC + "error_summary.gd",
+		ADDON_SRC + "core/logger.gd",
+		ADDON_SRC + "core/error_codes.gd",
+		ADDON_SRC + "core/error_summary.gd",
 		ADDON_SRC + "gd3/file_helper.gd",
 		ADDON_SRC + "gd3/time_helper.gd",
 		"res://addons/gdscript_complexity/version_adapter.gd",
@@ -334,8 +334,8 @@ func _finalize_analysis(project_result):
 func _append_history(project_result, config) -> void:
 	if project_result == null or config == null:
 		return
-	var history = load(ADDON_SRC + "history_store.gd").new()
-	var gate = load(ADDON_SRC + "threshold_gate.gd").new()
+	var history = load(ADDON_SRC + "core/history_store.gd").new()
+	var gate = load(ADDON_SRC + "core/threshold_gate.gd").new()
 	var gate_result = gate.evaluate(project_result, config)
 	var fail_count = int(gate_result.get("fail_count", 0))
 	if history.append_from_result(project_result, config, fail_count):

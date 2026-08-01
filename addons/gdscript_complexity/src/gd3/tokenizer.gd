@@ -616,7 +616,7 @@ func _track_brackets(op: String, line_num: int, col: int):
 
 func _ensure_error_codes():
 	if _error_codes == null:
-		_error_codes = load(SRC_ROOT + "/error_codes.gd").new()
+		_error_codes = load(SRC_ROOT + "/core/error_codes.gd").new()
 
 func _append_error(code: String, detail: String):
 	_ensure_error_codes()

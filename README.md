@@ -426,11 +426,10 @@ Confidence scores estimate parse reliability. Use `tests/validate_confidence.gd`
 - Untagged commits may contain experimental features
 
 **Current Release Status:**
-- **v0.4.0** is labeled as **early release / pre-stable**
+- **v1.0.0** is a Pride **PROUD** release: report/config schema frozen (see [docs/SCHEMA.md](docs/SCHEMA.md))
 - Versioning follows [Pride Versioning](https://pridever.org/) (`PROUD.DEFAULT.SHAME`); see [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)
-- **Breaking changes may occur before PROUD 1.0.0** (see [docs/BREAKING_CHANGES.md](docs/BREAKING_CHANGES.md))
-- Configuration, CLI arguments, and output formats may change
-- Upgrades between 0.x DEFAULT releases may require manual adjustments
+- Breaking schema/config changes require **PROUD 2.0.0** (see [docs/BREAKING_CHANGES.md](docs/BREAKING_CHANGES.md))
+- DEFAULT/SHAME releases after 1.0.0 may add optional fields without a PROUD bump
 
 ### Distribution Channels
 
@@ -453,9 +452,9 @@ Confidence scores estimate parse reliability. Use `tests/validate_confidence.gd`
 
 ### Version Stability Timeline
 
-- **0.x (current)**: Pride DEFAULT/SHAME releases; breaking changes possible
-- **1.0.0 (planned PROUD)**: Stable API, configuration, and output formats
-- **2.0.0+ (future PROUD)**: Major feature additions after a proud blank slate
+- **1.0.0 (current PROUD)**: Stable API, configuration, and output formats ([SCHEMA.md](docs/SCHEMA.md))
+- **1.x DEFAULT/SHAME**: Additive features and fixes; no breaking schema/config changes
+- **2.0.0+ (future PROUD)**: Required for breaking contract changes
 
 For detailed breaking changes, see the [BREAKING_CHANGES.md](docs/BREAKING_CHANGES.md) log.
 
@@ -463,13 +462,12 @@ For detailed breaking changes, see the [BREAKING_CHANGES.md](docs/BREAKING_CHANG
 
 Versions use [Pride Versioning](https://pridever.org/) (`PROUD.DEFAULT.SHAME`). One tagged release at a time.
 
-### Current Release (v0.4.0 — DEFAULT)
+### Current Release (v1.0.0 — PROUD)
 - ✅ CC and C-COG metrics
-- ✅ JSON and CSV export
-- ✅ HTML report (CLI `--html-output` + dock Export HTML)
+- ✅ JSON / CSV / HTML export
 - ✅ Dock Nest / Params / LOC columns
 - ✅ Structural threshold gates (NEST / PARAMS / LOC)
-- ✅ JSON per-function `"cc"` field
+- ✅ JSON per-function `"cc"` / `"cog"` fields
 - ✅ Godot 3.x support
 - ✅ Caching system
 - ✅ CLI integration (`cli/analyze_project.gd`)
@@ -478,10 +476,13 @@ Versions use [Pride Versioning](https://pridever.org/) (`PROUD.DEFAULT.SHAME`). 
 - ✅ Consumer GitHub Actions template (`examples/github-actions/`)
 - ✅ Automated CI on Godot 3.5.3 headless (`.github/workflows/ci.yml`)
 - ✅ Append-only `complexity_history.jsonl` + CLI `--diff` / `--fail-on-diff-regression`
+- ✅ Schema freeze (`docs/SCHEMA.md`, report `"version": "1.0"`)
+- ✅ Shared `src/core/` + `scripts/sync_core.ps1` (g4 canonical → g3)
+- ✅ On-demand Analyze Project only (no real-time editor annotations on Godot 3)
 
-### Planned (later DEFAULT / PROUD — not started until prior tag ships)
-- 🔲 1.0.0 PROUD — schema freeze, shared-core
-- 🔲 Custom metric plugins (after 1.0)
+### Planned (post-1.0)
+- 🔲 Custom metric plugins
+- 🔲 Further DEFAULT polish without schema breaks
 
 ### Under Consideration
 - Halstead Metrics
@@ -497,6 +498,7 @@ Permission is granted to use, copy, modify, and distribute this software in acco
 ## Documentation
 
 - [User Guide](docs/USER_GUIDE.md) - Installation, configuration, usage, troubleshooting
+- [Schema Contract](docs/SCHEMA.md) - Frozen JSON report and config keys (v1.0)
 - [Technical Documentation](docs/TECHNICAL.md) - Architecture and parser details
 - [Compatibility Matrix](docs/COMPATIBILITY.md) - Version support details
 - [Breaking Changes Log](docs/BREAKING_CHANGES.md) - Release-impacting changes

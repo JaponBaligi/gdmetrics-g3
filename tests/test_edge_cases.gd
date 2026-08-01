@@ -52,15 +52,15 @@ func _check_one(ba, cfg, adapter, gd_path: String, exp_path: String) -> bool:
 	var tokenizer = load("res://addons/gdscript_complexity/src/gd3/tokenizer.gd").new()
 	var tokens = tokenizer.tokenize_file(gd_path)
 	var terr = tokenizer.get_errors()
-	var detector = load("res://addons/gdscript_complexity/src/control_flow_detector.gd").new()
+	var detector = load("res://addons/gdscript_complexity/src/core/control_flow_detector.gd").new()
 	var nodes = detector.detect_control_flow(tokens, adapter)
-	var funcs = load("res://addons/gdscript_complexity/src/function_detector.gd").new().detect_functions(tokens)
+	var funcs = load("res://addons/gdscript_complexity/src/core/function_detector.gd").new().detect_functions(tokens)
 	var count_logical = cfg.cc_config.get("count_logical_operators", true)
 	var cc = 0
 	var cog = 0
 	if tokens.size() > 0:
-		cc = load("res://addons/gdscript_complexity/src/cc_calculator.gd").new().calculate_cc(nodes, count_logical)
-		cog = load("res://addons/gdscript_complexity/src/cog_complexity_calculator.gd").new().calculate_cog(nodes, funcs).total_cog
+		cc = load("res://addons/gdscript_complexity/src/core/cc_calculator.gd").new().calculate_cc(nodes, count_logical)
+		cog = load("res://addons/gdscript_complexity/src/core/cog_complexity_calculator.gd").new().calculate_cog(nodes, funcs).total_cog
 
 	var arms = 0
 	var lambdas = 0
@@ -78,7 +78,7 @@ func _check_one(ba, cfg, adapter, gd_path: String, exp_path: String) -> bool:
 		if fi.return_type != "":
 			ret_type = fi.return_type
 
-	var classes = load("res://addons/gdscript_complexity/src/class_detector.gd").new().detect_classes(tokens)
+	var classes = load("res://addons/gdscript_complexity/src/core/class_detector.gd").new().detect_classes(tokens)
 	var extends_val = ""
 	for c in classes:
 		if c.extends_class != "":
