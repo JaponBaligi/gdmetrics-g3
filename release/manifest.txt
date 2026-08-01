@@ -1,0 +1,5 @@
+addons/gdscript_complexity/
+docs/
+README.md
+LICENSE
+complexity_config.example.json
