@@ -1,16 +1,13 @@
-## GDMetrics for Godot 3 — v0.3.0
+## GDMetrics for Godot 3 — v0.4.0
 
 Pride Versioning **DEFAULT** release (`PROUD.DEFAULT.SHAME`). Early / pre-stable until 1.0.0.
 
 ### Highlights
-- **HTML report**: self-contained HTML with totals, top offenders, per-file table, and SVG C-COG bars (`--html-output` / Export HTML)
-- **Dock secondary metrics**: Nest, Params, LOC columns on file rows
-- **Structural gates**: `structural` config keys for NEST / PARAMS / LOC warn+fail thresholds
-- **JSON per-function CC**: each function entry includes `"cc"` alongside `"cog"`
-- CI threshold gates for CC / C-COG / structural metrics (exit code `1` on fail)
+- **Append-only history**: successful analyses append a JSON line to `complexity_history.jsonl` (configurable via `report.history_path`)
+- **CLI diff**: `--diff` prints Δ totals/averages and fail_count vs previous history line or `--baseline`; `--fail-on-diff-regression` exits `1` when `avg_cog` or `fail_count` increases
 
 ### Install
-1. Download `gdmetrics-v0.3.0.zip`
+1. Download `gdmetrics-v0.4.0.zip`
 2. Copy `addons/gdscript_complexity/` and `cli/` into your Godot 3.x project
 3. Project → Project Settings → Plugins → enable **GDScript Complexity Analyzer**
 4. Optional: copy `examples/github-actions/complexity-check.yml` into `.github/workflows/`
@@ -19,6 +16,14 @@ Pride Versioning **DEFAULT** release (`PROUD.DEFAULT.SHAME`). Early / pre-stable
 ```bash
 godot --no-window -s cli/analyze_project.gd -- \
   --project-path . --output report.json --csv-output report.csv --html-output report.html
+
+# Trend vs previous history line
+godot --no-window -s cli/analyze_project.gd -- \
+  --project-path . --output report.json --diff
+
+# Fail CI on avg_cog / fail_count regression vs baseline snapshot
+godot --no-window -s cli/analyze_project.gd -- \
+  --project-path . --output report.json --baseline baseline.jsonl --fail-on-diff-regression
 ```
 
 ### Docs

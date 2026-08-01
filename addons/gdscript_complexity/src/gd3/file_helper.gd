@@ -33,10 +33,21 @@ func write_line(file, text: String):
 		file.store_string(text + "\n")
 
 func parse_json(content: String) -> Dictionary:
-	var parse_result = JSON.parse(content)
+	return parse_json_text(content)
+
+func parse_json_text(text: String) -> Dictionary:
+	var parse_result = JSON.parse(text)
 	if parse_result.error != OK:
 		return {}
-	return parse_result.result
+	if parse_result.result is Dictionary:
+		return parse_result.result
+	return {}
 
 func stringify_json(data: Dictionary) -> String:
-	return var2str(data)
+	return to_json(data)
+
+func timestamp_utc() -> String:
+	var d = OS.get_datetime(true)
+	return "%04d-%02d-%02dT%02d:%02d:%02dZ" % [
+		d.year, d.month, d.day, d.hour, d.minute, d.second
+	]
