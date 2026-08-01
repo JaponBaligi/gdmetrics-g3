@@ -1,4 +1,4 @@
-# class_name ConfigManager  # Commented out to avoid parse-time cascade in Godot 4.x
+# class_name ConfigManager  # Commented out to avoid parse-time cascade
 extends Object
 
 # Configuration manager
@@ -24,6 +24,7 @@ class Config:
 			"res://.git/**",
 			"res://.godot/**",
 			"res://node_modules/**",
+			"res://addons/gdscript_complexity/**",
 			"res://addons/**/test/**",
 			"res://tests/**"
 		]

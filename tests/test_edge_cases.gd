@@ -1,0 +1,127 @@
+# Run: godot3 --path . --no-window -s tests/test_edge_cases.gd
+extends SceneTree
+
+const FIXTURE_DIR = "res://tests/fixtures/edge_cases/"
+
+func _init():
+	var adapter = load("res://addons/gdscript_complexity/version_adapter.gd").new()
+	var cm = load("res://addons/gdscript_complexity/src/config_manager.gd").new()
+	cm.load_config("res://complexity_config.json")
+	var cfg = cm.get_config()
+	var ba = load("res://addons/gdscript_complexity/src/batch_analyzer.gd").new()
+	ba.version_adapter = adapter
+
+	var dir = Directory.new()
+	if dir.open(FIXTURE_DIR) != OK:
+		print("FAIL: cannot open ", FIXTURE_DIR)
+		quit(1)
+		return
+
+	var passed = 0
+	var failed = 0
+	dir.list_dir_begin(true, true)
+	var name = dir.get_next()
+	while name != "":
+		if name.ends_with(".gd") and not name.ends_with(".expected.json"):
+			var gd_path = FIXTURE_DIR + name
+			var exp_path = FIXTURE_DIR + name.replace(".gd", ".expected.json")
+			var ok = _check_one(ba, cfg, adapter, gd_path, exp_path)
+			if ok:
+				passed += 1
+			else:
+				failed += 1
+		name = dir.get_next()
+	dir.list_dir_end()
+
+	print("EDGE_CASES Results: %d passed, %d failed" % [passed, failed])
+	quit(0 if failed == 0 else 1)
+
+func _check_one(ba, cfg, adapter, gd_path: String, exp_path: String) -> bool:
+	var fh = load("res://addons/gdscript_complexity/src/gd3/file_helper.gd").new()
+	var expected = {}
+	if fh.file_exists(exp_path):
+		var f = fh.open_read(exp_path)
+		if f != null:
+			var txt = f.get_as_text()
+			fh.close_file(f)
+			var parsed = JSON.parse(txt)
+			if parsed.error == OK and typeof(parsed.result) == TYPE_DICTIONARY:
+				expected = parsed.result
+
+	# Analyze single file via project root = fixture dir with include of this file name
+	var tokenizer = load("res://addons/gdscript_complexity/src/gd3/tokenizer.gd").new()
+	var tokens = tokenizer.tokenize_file(gd_path)
+	var terr = tokenizer.get_errors()
+	var detector = load("res://addons/gdscript_complexity/src/control_flow_detector.gd").new()
+	var nodes = detector.detect_control_flow(tokens, adapter)
+	var funcs = load("res://addons/gdscript_complexity/src/function_detector.gd").new().detect_functions(tokens)
+	var count_logical = cfg.cc_config.get("count_logical_operators", true)
+	var cc = 0
+	var cog = 0
+	if tokens.size() > 0:
+		cc = load("res://addons/gdscript_complexity/src/cc_calculator.gd").new().calculate_cc(nodes, count_logical)
+		cog = load("res://addons/gdscript_complexity/src/cog_complexity_calculator.gd").new().calculate_cog(nodes, funcs).total_cog
+
+	var arms = 0
+	var lambdas = 0
+	for n in nodes:
+		if n.type == "case":
+			arms += 1
+		elif n.type == "lambda":
+			lambdas += 1
+
+	var static_funcs = 0
+	var ret_type = ""
+	for fi in funcs:
+		if fi.type == "static_func":
+			static_funcs += 1
+		if fi.return_type != "":
+			ret_type = fi.return_type
+
+	var classes = load("res://addons/gdscript_complexity/src/class_detector.gd").new().detect_classes(tokens)
+	var extends_val = ""
+	for c in classes:
+		if c.extends_class != "":
+			extends_val = c.extends_class
+
+	if expected.has("tokenizer_errors") and terr.size() != int(expected["tokenizer_errors"]):
+		print("FAIL %s tokenizer_errors got=%d want=%s" % [gd_path, terr.size(), expected["tokenizer_errors"]])
+		return false
+	if expected.has("tokenizer_errors_min") and terr.size() < int(expected["tokenizer_errors_min"]):
+		print("FAIL %s tokenizer_errors_min got=%d" % [gd_path, terr.size()])
+		return false
+	if expected.has("error_contains"):
+		var blob = str(terr)
+		if blob.find(str(expected["error_contains"])) < 0:
+			print("FAIL %s missing error %s in %s" % [gd_path, expected["error_contains"], blob])
+			return false
+	if expected.has("cc") and cc != int(expected["cc"]):
+		print("FAIL %s cc got=%d want=%s" % [gd_path, cc, expected["cc"]])
+		return false
+	if expected.has("cc_min") and cc < int(expected["cc_min"]):
+		print("FAIL %s cc_min got=%d" % [gd_path, cc])
+		return false
+	if expected.has("cog") and cog != int(expected["cog"]):
+		print("FAIL %s cog got=%d want=%s" % [gd_path, cog, expected["cog"]])
+		return false
+	if expected.has("cog_min") and cog < int(expected["cog_min"]):
+		print("FAIL %s cog_min got=%d" % [gd_path, cog])
+		return false
+	if expected.has("match_arms") and arms != int(expected["match_arms"]):
+		print("FAIL %s match_arms got=%d want=%s" % [gd_path, arms, expected["match_arms"]])
+		return false
+	if expected.has("static_funcs") and static_funcs != int(expected["static_funcs"]):
+		print("FAIL %s static_funcs got=%d" % [gd_path, static_funcs])
+		return false
+	if expected.has("return_type") and ret_type != str(expected["return_type"]):
+		print("FAIL %s return_type got=%s want=%s" % [gd_path, ret_type, expected["return_type"]])
+		return false
+	if expected.has("extends") and extends_val != str(expected["extends"]):
+		print("FAIL %s extends got=%s want=%s" % [gd_path, extends_val, expected["extends"]])
+		return false
+	if expected.has("success") and tokens.size() == 0:
+		# empty file path validated by empty tokens + no fatal requirement
+		pass
+
+	print("PASS ", gd_path.get_file(), " cc=", cc, " cog=", cog, " arms=", arms, " errs=", terr.size())
+	return true

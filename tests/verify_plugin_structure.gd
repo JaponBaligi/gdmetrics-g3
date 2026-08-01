@@ -31,8 +31,7 @@ func run_verify() -> int:
 func _check_plugin_cfg():
 	print("Checking plugin.cfg...")
 	var cfg_path = "res://addons/gdscript_complexity/plugin.cfg"
-	var file_helper_script = "res://tests/file_helper_3.gd" if Engine.get_version_info().get("major", 0) == 3 else "res://tests/file_helper_4.gd"
-	var file_helper = load(file_helper_script).new()
+	var file_helper = load("res://tests/file_helper_3.gd").new()
 	if not file_helper.file_exists(cfg_path):
 		_errors.append("plugin.cfg not found at %s" % cfg_path)
 		_passed = false
@@ -55,8 +54,7 @@ func _check_plugin_cfg():
 func _check_plugin_script():
 	print("Checking plugin.gd...")
 	var plugin_path = "res://addons/gdscript_complexity/plugin.gd"
-	var file_helper_script = "res://tests/file_helper_3.gd" if Engine.get_version_info().get("major", 0) == 3 else "res://tests/file_helper_4.gd"
-	var file_helper = load(file_helper_script).new()
+	var file_helper = load("res://tests/file_helper_3.gd").new()
 	if not file_helper.file_exists(plugin_path):
 		_errors.append("plugin.gd not found")
 		_passed = false
@@ -101,13 +99,14 @@ func _check_version_adapter():
 	else:
 		print("  ✓ version_adapter supports current Godot version")
 	var version_info = Engine.get_version_info()
-	var is_godot_3 = version_info.get("major", 0) == 3
-	if is_godot_3:
-		if not adapter.is_godot_3:
-			_errors.append("version_adapter.is_godot_3 should be true on 3.x")
-			_passed = false
-		else:
-			print("  ✓ version_adapter correctly detects Godot 3.x")
+	if not adapter.is_godot_3:
+		_errors.append("version_adapter.is_godot_3 should be true (gdmetrics-g3 is Godot 3 only)")
+		_passed = false
+	else:
+		print("  ✓ version_adapter correctly detects Godot 3.x")
+	if version_info.get("major", 0) != 3:
+		_errors.append("Expected Godot 3.x runtime for gdmetrics-g3")
+		_passed = false
 	adapter = null
 
 func _print_summary():

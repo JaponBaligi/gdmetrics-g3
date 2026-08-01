@@ -15,13 +15,7 @@ func _init():
 	control_flow_detector = load("res://addons/gdscript_complexity/src/control_flow_detector.gd").new()
 	function_detector = load("res://addons/gdscript_complexity/src/function_detector.gd").new()
 	
-	var version_info = Engine.get_version_info()
-	var is_godot_3 = version_info.get("major", 0) == 3
-	
-	if is_godot_3:
-		tokenizer = load("res://addons/gdscript_complexity/src/gd3/tokenizer.gd").new()
-	else:
-		tokenizer = load("res://addons/gdscript_complexity/src/tokenizer.gd").new()
+	tokenizer = load("res://addons/gdscript_complexity/src/gd3/tokenizer.gd").new()
 	
 	run_all_tests()
 	quit(tests_failed)

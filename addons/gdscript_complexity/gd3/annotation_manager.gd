@@ -2,7 +2,7 @@ tool
 extends Reference
 class_name AnnotationManager
 
-# Adds complexity warnings to script editor (Godot 3.x version)
+# Adds complexity warnings to script editor (Godot 3.x)
 
 var script_editor: Object = null
 var has_annotation_support: bool = false
@@ -40,27 +40,10 @@ func add_complexity_annotation(script_path: String, line: int, message: String, 
 		_fallback_log(script_path, line, message, severity)
 		return
 	
-	if annotation_api == "add_error_annotation":
-		_add_error_annotation_4x(script_path, line, message, severity)
-	elif annotation_api == "set_error":
+	if annotation_api == "set_error":
 		_set_error_3x(script_path, line, message, severity)
 	else:
 		_fallback_log(script_path, line, message, severity)
-
-func _add_error_annotation_4x(script_path: String, line: int, message: String, severity: String):
-	if not script_editor.has_method("add_error_annotation"):
-		_fallback_log(script_path, line, message, severity)
-		return
-	
-	var severity_enum = 0
-	if severity == "error":
-		severity_enum = 0
-	elif severity == "warning":
-		severity_enum = 1
-	else:
-		severity_enum = 2
-	
-	script_editor.add_error_annotation(script_path, line, severity_enum, message)
 
 func _set_error_3x(script_path: String, line: int, message: String, severity: String):
 	if not script_editor.has_method("set_error"):
@@ -100,9 +83,7 @@ func clear_annotations(script_path: String):
 	if not has_annotation_support or script_editor == null:
 		return
 	
-	if annotation_api == "add_error_annotation" and script_editor.has_method("clear_annotations"):
-		script_editor.clear_annotations(script_path)
-	elif annotation_api == "set_error" and script_editor.has_method("clear_errors"):
+	if annotation_api == "set_error" and script_editor.has_method("clear_errors"):
 		script_editor.clear_errors(script_path)
 	else:
 		_fallback_log(script_path, 1, "clear_annotations not supported", "info")

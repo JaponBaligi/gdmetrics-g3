@@ -45,7 +45,7 @@ func _file_exists(file_path: String) -> bool:
 	return file_helper.file_exists(file_path)
 
 func _remove_file(file_path: String):
-	# Directory.remove/DirAccess.remove expect path relative to opened dir.
+	# Directory.remove expects path relative to opened dir.
 	# We use user://, so pass basename only (e.g. "user://temp_test_0.gd" -> "temp_test_0.gd").
 	var name_in_user = file_path
 	if file_path.begins_with("user://"):
@@ -78,10 +78,7 @@ func _initialize():
 			else:
 				i += 1
 	
-	var version_info = Engine.get_version_info()
-	var is_godot_3 = version_info.get("major", 0) == 3
-	var helper_path = "res://tests/file_helper_3.gd" if is_godot_3 else "res://tests/file_helper_4.gd"
-	file_helper = load(helper_path).new()
+	file_helper = load("res://tests/file_helper_3.gd").new()
 	result = ValidationResult.new()
 	var exit_code = validate_parser_stability(project_path)
 	call_deferred("quit", exit_code)
@@ -256,7 +253,7 @@ func test_stability() -> bool:
 		var temp_path = "user://temp_test_%d.gd" % test_cases.find(test_code)
 		
 		if _write_file(temp_path, test_code):
-			var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd" if Engine.get_version_info().get("major", 0) == 3 else "res://addons/gdscript_complexity/src/tokenizer.gd"
+			var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd"
 			var tokenizer_script = load(tokenizer_path)
 			assert(tokenizer_script != null, "Failed to load tokenizer script")
 			var tokenizer = tokenizer_script.new()
@@ -311,7 +308,7 @@ func test_indentation_ambiguity() -> bool:
 		var temp_path = "user://temp_indent_%d.gd" % test_cases.find(test_case)
 		
 		if _write_file(temp_path, test_case["code"]):
-			var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd" if Engine.get_version_info().get("major", 0) == 3 else "res://addons/gdscript_complexity/src/tokenizer.gd"
+			var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd"
 			var tokenizer_script = load(tokenizer_path)
 			assert(tokenizer_script != null, "Failed to load tokenizer script")
 			var tokenizer = tokenizer_script.new()
@@ -359,9 +356,7 @@ func test_json_output(project_path: String) -> bool:
 		result.errors.append("No files for JSON output test")
 		return false
 	
-	var version_info = Engine.get_version_info()
-	var is_godot_3 = version_info.get("major", 0) == 3
-	var report_path = "res://addons/gdscript_complexity/src/gd3/report_generator.gd" if is_godot_3 else "res://addons/gdscript_complexity/src/gd4/report_generator.gd"
+	var report_path = "res://addons/gdscript_complexity/src/gd3/report_generator.gd"
 	var report_gen_script = load(report_path)
 	assert(report_gen_script != null, "Failed to load report_generator.gd")
 	var report_gen = report_gen_script.new()
@@ -377,9 +372,6 @@ func test_json_output(project_path: String) -> bool:
 		result.errors.append("JSON report project section missing total_files")
 		return false
 
-	var version_info_json = Engine.get_version_info()
-	var is_godot_3_json = version_info_json.get("major", 0) == 3
-	
 	var json_string = ""
 	if file_helper != null:
 		json_string = file_helper.stringify_json(report)
@@ -430,7 +422,7 @@ func test_large_file_handling() -> bool:
 		return false
 	
 	var start_time = _get_ticks_msec()
-	var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd" if Engine.get_version_info().get("major", 0) == 3 else "res://addons/gdscript_complexity/src/tokenizer.gd"
+	var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd"
 	var tokenizer_script = load(tokenizer_path)
 	assert(tokenizer_script != null, "Failed to load tokenizer script")
 	var tokenizer = tokenizer_script.new()
@@ -472,7 +464,7 @@ func test_deeply_nested_code() -> bool:
 		return false
 	
 	var start_time = _get_ticks_msec()
-	var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd" if Engine.get_version_info().get("major", 0) == 3 else "res://addons/gdscript_complexity/src/tokenizer.gd"
+	var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd"
 	var tokenizer_script = load(tokenizer_path)
 	assert(tokenizer_script != null, "Failed to load tokenizer script")
 	var tokenizer = tokenizer_script.new()
@@ -576,7 +568,7 @@ func test_edge_cases() -> bool:
 		var temp_path = "user://temp_edge_%d.gd" % edge_cases.find(edge_case)
 		
 		if _write_file(temp_path, edge_case["code"]):
-			var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd" if Engine.get_version_info().get("major", 0) == 3 else "res://addons/gdscript_complexity/src/tokenizer.gd"
+			var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd"
 			var tokenizer_script = load(tokenizer_path)
 			assert(tokenizer_script != null, "Failed to load tokenizer script")
 			var tokenizer = tokenizer_script.new()
@@ -626,7 +618,7 @@ func test_performance_benchmarks() -> bool:
 			continue
 		
 		var start_time = _get_ticks_msec()
-		var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd" if Engine.get_version_info().get("major", 0) == 3 else "res://addons/gdscript_complexity/src/tokenizer.gd"
+		var tokenizer_path = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd"
 		var tokenizer_script = load(tokenizer_path)
 		assert(tokenizer_script != null, "Failed to load tokenizer script")
 		var tokenizer = tokenizer_script.new()

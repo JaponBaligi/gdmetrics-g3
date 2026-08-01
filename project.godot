@@ -22,22 +22,22 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "CCCalculator",
 "language": "GDScript",
-"path": "res://src/cc_calculator.gd"
+"path": "res://addons/gdscript_complexity/src/cc_calculator.gd"
 }, {
 "base": "Object",
 "class": "CacheManager",
 "language": "GDScript",
-"path": "res://src/cache_manager.gd"
+"path": "res://addons/gdscript_complexity/src/cache_manager.gd"
 }, {
 "base": "Object",
 "class": "ClassDetector",
 "language": "GDScript",
-"path": "res://src/class_detector.gd"
+"path": "res://addons/gdscript_complexity/src/class_detector.gd"
 }, {
 "base": "Object",
 "class": "CogComplexityCalculator",
 "language": "GDScript",
-"path": "res://src/cog_complexity_calculator.gd"
+"path": "res://addons/gdscript_complexity/src/cog_complexity_calculator.gd"
 }, {
 "base": "Control",
 "class": "ComplexityDockPanel",
@@ -47,7 +47,7 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "ConfidenceCalculator",
 "language": "GDScript",
-"path": "res://src/confidence_calculator.gd"
+"path": "res://addons/gdscript_complexity/src/confidence_calculator.gd"
 }, {
 "base": "AcceptDialog",
 "class": "ConfigDialog",
@@ -57,17 +57,17 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "ControlFlowDetector",
 "language": "GDScript",
-"path": "res://src/control_flow_detector.gd"
+"path": "res://addons/gdscript_complexity/src/control_flow_detector.gd"
 }, {
 "base": "Object",
 "class": "FunctionDetector",
 "language": "GDScript",
-"path": "res://src/function_detector.gd"
+"path": "res://addons/gdscript_complexity/src/function_detector.gd"
 }, {
 "base": "Object",
 "class": "GDScriptTokenizer",
 "language": "GDScript",
-"path": "res://src/gd3/tokenizer.gd"
+"path": "res://addons/gdscript_complexity/src/gd3/tokenizer.gd"
 }, {
 "base": "Node",
 "class": "TestClass",
@@ -96,4 +96,4 @@ config/features=PoolStringArray( "4.2" )
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/gdscript_complexity/plugin.cfg" )
+enabled=PoolStringArray(  )

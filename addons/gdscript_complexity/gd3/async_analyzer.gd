@@ -1,5 +1,6 @@
-tool
+﻿tool
 extends Reference
+const _VERBOSE_TRACE = false
 class_name AsyncAnalyzer
 
 const ADDON_ROOT := "res://addons/gdscript_complexity"
@@ -37,13 +38,13 @@ var _cog_calc_instance = null
 var _confidence_calc_instance = null
 
 func start_analysis(root_path: String, config_data, adapter = null, plugin: Node = null):
-	print("[AsyncAnalyzer] start_analysis called with root_path: %s" % root_path)
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] start_analysis called with root_path: %s" % root_path)
 	
 	if is_running:
-		print("[AsyncAnalyzer] Already running, ignoring")
+		if _VERBOSE_TRACE: print("[AsyncAnalyzer] Already running, ignoring")
 		return
 	
-	print("[AsyncAnalyzer] Starting analysis...")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Starting analysis...")
 	cancelled = false
 	is_running = true
 	current_index = 0
@@ -54,8 +55,8 @@ func start_analysis(root_path: String, config_data, adapter = null, plugin: Node
 	_error_codes = load(SRC_ROOT + "/error_codes.gd").new()
 	_ensure_logger(config)
 	
-	print("[AsyncAnalyzer] Loading batch_analyzer...")
-	batch_analyzer = preload(SRC_ROOT + "/batch_analyzer.gd").new()
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Loading batch_analyzer...")
+	batch_analyzer = load(SRC_ROOT + "/batch_analyzer.gd").new()
 	if batch_analyzer == null:
 		push_error("[AsyncAnalyzer] Failed to create batch_analyzer!")
 		is_running = false
@@ -63,7 +64,7 @@ func start_analysis(root_path: String, config_data, adapter = null, plugin: Node
 	batch_analyzer.version_adapter = version_adapter
 	batch_analyzer.logger = logger
 	
-	print("[AsyncAnalyzer] Loading file discovery...")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Loading file discovery...")
 	var discovery_script = SRC_ROOT + "/gd3/file_discovery.gd"
 	var discovery_resource = load(discovery_script)
 	if discovery_resource == null:
@@ -77,19 +78,19 @@ func start_analysis(root_path: String, config_data, adapter = null, plugin: Node
 		is_running = false
 		return
 	
-	print("[AsyncAnalyzer] Finding files...")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Finding files...")
 	files = discovery.find_files(root_path, config.include_patterns, config.exclude_patterns)
-	print("[AsyncAnalyzer] Found %d files" % files.size())
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Found %d files" % files.size())
 	
 	if files.size() == 0:
-		print("[AsyncAnalyzer] No files found, stopping")
+		if _VERBOSE_TRACE: print("[AsyncAnalyzer] No files found, stopping")
 		is_running = false
 		return
 	
 	# In Godot 3.x, process one file at a time to prevent UI freezing
 	batch_size = 1
 	
-	print("[AsyncAnalyzer] Creating project_result...")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Creating project_result...")
 	project_result = load(SRC_ROOT + "/batch_analyzer.gd").ProjectResult.new()
 	if project_result == null:
 		push_error("[AsyncAnalyzer] Failed to create project_result!")
@@ -99,9 +100,9 @@ func start_analysis(root_path: String, config_data, adapter = null, plugin: Node
 	project_result.file_results = []
 	
 	# Emit signal to request processing - plugin will handle deferred call
-	print("[AsyncAnalyzer] Emitting process_next_batch_requested signal")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Emitting process_next_batch_requested signal")
 	emit_signal("process_next_batch_requested")
-	print("[AsyncAnalyzer] Signal emitted successfully")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Signal emitted successfully")
 
 func _process_next_batch():
 	if cancelled:
@@ -110,7 +111,7 @@ func _process_next_batch():
 		return
 	
 	if current_index >= files.size():
-		print("[AsyncAnalyzer] Analysis complete, finalizing results")
+		if _VERBOSE_TRACE: print("[AsyncAnalyzer] Analysis complete, finalizing results")
 		_finalize_results()
 		is_running = false
 		emit_signal("analysis_complete", project_result)
@@ -119,7 +120,7 @@ func _process_next_batch():
 	
 	# Process one file at a time in Godot 3.x to prevent UI freezing
 	var file_path = files[current_index]
-	print("[AsyncAnalyzer] Processing file %d/%d: %s" % [current_index + 1, files.size(), file_path])
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Processing file %d/%d: %s" % [current_index + 1, files.size(), file_path])
 	
 	if cancelled:
 		is_running = false
@@ -129,13 +130,13 @@ func _process_next_batch():
 	# Wrap file analysis in error handling to prevent crashes
 	var file_result = null
 	
-	print("[AsyncAnalyzer] Calling _analyze_file_safe...")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Calling _analyze_file_safe...")
 	# Use a wrapper to catch any errors during analysis
 	file_result = _analyze_file_safe(file_path)
-	print("[AsyncAnalyzer] _analyze_file_safe completed")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] _analyze_file_safe completed")
 	
 	if file_result == null:
-		print("[AsyncAnalyzer] ERROR: File analysis returned null for: %s" % file_path)
+		if _VERBOSE_TRACE: print("[AsyncAnalyzer] ERROR: File analysis returned null for: %s" % file_path)
 		# Create error result if analysis failed
 		file_result = load(SRC_ROOT + "/batch_analyzer.gd").FileResult.new()
 		file_result.file_path = file_path
@@ -151,19 +152,19 @@ func _process_next_batch():
 	else:
 		project_result.failed_files += 1
 		if file_result.errors.size() > 0:
-			print("[AsyncAnalyzer] File analysis failed: %s - %s" % [file_path, file_result.errors[0]])
+			if _VERBOSE_TRACE: print("[AsyncAnalyzer] File analysis failed: %s - %s" % [file_path, file_result.errors[0]])
 	
 	emit_signal("file_analyzed", file_result)
 	current_index += 1
-	print("[AsyncAnalyzer] Emitting progress_updated signal...")
+	if _VERBOSE_TRACE: print("[AsyncAnalyzer] Emitting progress_updated signal...")
 	emit_signal("progress_updated", current_index, files.size(), file_path)
 	
 	# Emit signal to request next batch - plugin will handle deferred call
 	# Always emit, even after last file, so finalization check can run
 	if current_index < files.size():
-		print("[AsyncAnalyzer] More files to process, emitting process_next_batch_requested")
+		if _VERBOSE_TRACE: print("[AsyncAnalyzer] More files to process, emitting process_next_batch_requested")
 	else:
-		print("[AsyncAnalyzer] Last file processed, emitting final process_next_batch_requested for finalization")
+		if _VERBOSE_TRACE: print("[AsyncAnalyzer] Last file processed, emitting final process_next_batch_requested for finalization")
 	emit_signal("process_next_batch_requested")
 
 func _analyze_file_safe(file_path: String):
@@ -184,7 +185,7 @@ func _analyze_file(file_path: String):
 		return result
 	
 	# Add error handling to prevent crashes
-	var tokenizer_script = SRC_ROOT + ("/gd3/tokenizer.gd" if Engine.get_version_info().get("major", 0) == 3 else "/tokenizer.gd")
+	var tokenizer_script = SRC_ROOT + "/gd3/tokenizer.gd"
 	var tokenizer = null
 	var tokens = []
 	var tokenizer_errors = []
@@ -208,16 +209,22 @@ func _analyze_file(file_path: String):
 	tokens = tokenizer.tokenize_file(file_path)
 	tokenizer_errors = tokenizer.get_errors()
 	
-	if tokenizer_errors.size() > 0:
+	if tokenizer_errors.size() > 0 and tokens.size() == 0:
 		result.errors = tokenizer_errors
 		result.success = false
 		_log_error("TOKEN_PARSE_ERROR", "Tokenization failed for %s" % file_path)
 		return result
 	
+	if tokenizer_errors.size() > 0:
+		# Partial tokenize success â€” keep going; confidence will reflect errors
+		result.errors = tokenizer_errors
+		_log_warning("TOKEN_PARSE_ERROR", "Tokenizer warnings for %s (%d)" % [file_path, tokenizer_errors.size()])
+	
 	if tokens.size() == 0:
-		result.errors.append(_error_codes.format("NO_TOKENS_FOUND", "No tokens found"))
-		result.success = false
-		_log_error("NO_TOKENS_FOUND", "No tokens found in %s" % file_path)
+		result.success = true
+		result.cc = 0
+		result.cog = 0
+		result.confidence = version_adapter.get_confidence_cap() if version_adapter != null else 1.0
 		return result
 	
 	# Process with detectors
@@ -235,7 +242,10 @@ func _analyze_file(file_path: String):
 	if class_errors.size() > 0:
 		result.errors += class_errors
 	
-	var cc = _cc_calc_instance.calculate_cc(control_flow_nodes)
+	var count_logical = true
+	if config != null and config.cc_config.has("count_logical_operators"):
+		count_logical = config.cc_config["count_logical_operators"]
+	var cc = _cc_calc_instance.calculate_cc(control_flow_nodes, count_logical)
 	result.cc = cc
 	result.cc_breakdown = _cc_calc_instance.get_breakdown()
 	result.per_function_cc = _calculate_per_function_cc(control_flow_nodes, functions)
@@ -374,6 +384,11 @@ func _log_error(code: String, message: String):
 		return
 	logger.log_with_code("error", code, message)
 
+func _log_warning(code: String, message: String):
+	if logger == null:
+		return
+	logger.log_with_code("warning", code, message)
+
 func _ensure_tools():
 	if _tools_ready:
 		return
@@ -382,7 +397,10 @@ func _ensure_tools():
 	_detector_instance = load(SRC_ROOT + "/control_flow_detector.gd").new()
 	_function_detector_instance = load(SRC_ROOT + "/function_detector.gd").new()
 	_class_detector_instance = load(SRC_ROOT + "/class_detector.gd").new()
-\t_cc_calc_instance = load(SRC_ROOT + "/cc_calculator.gd").new()
-\t_cog_calc_instance = load(SRC_ROOT + "/cog_complexity_calculator.gd").new()
-\t_confidence_calc_instance = load(SRC_ROOT + "/confidence_calculator.gd").new()
+	_cc_calc_instance = load(SRC_ROOT + "/cc_calculator.gd").new()
+	_cog_calc_instance = load(SRC_ROOT + "/cog_complexity_calculator.gd").new()
+	_confidence_calc_instance = load(SRC_ROOT + "/confidence_calculator.gd").new()
 	_tools_ready = true
+
+
+

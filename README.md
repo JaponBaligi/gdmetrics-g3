@@ -101,7 +101,7 @@ High complexity files: 3
 ```json
 {
   "project": "my_project",
-  "engine_version": "4.2.1",
+  "engine_version": "3.5.x",
   "timestamp": "2026-01-26T10:30:00Z",
   "totals": {
     "files_analyzed": 42,
@@ -202,7 +202,7 @@ For full options, see `complexity_config.example.json`.
 
 **Default Behavior When No Config File is Present:**
 - If no `complexity_config.json` is found, the analyzer uses built-in defaults
-- Default patterns: `include: ["res://**/*.gd"]`, `exclude: ["res://addons/**"]`
+- Default patterns: `include: ["res://**/*.gd"]`, `exclude` includes `.git`, `.godot`, `addons/gdscript_complexity/**`, `tests/**`, and similar noise paths
 - Default CC thresholds: warn at 10, fail at 20
 - Default COG thresholds: warn at 15, fail at 30
 - Caching is **enabled by default** for performance
@@ -257,7 +257,7 @@ Set `"report.auto_export": true` to automatically write reports after analysis. 
 
 ⚠️ **Best-effort / legacy support**
 - All core metrics work (CC, C-COG)
-- No `match` statement support (language limitation)
+- `match` supported via arm detection (GDScript has no `case` keyword)
 - Limited editor integration (no annotations)
 - Typical accuracy 85-90%; confidence scores capped at 0.90 max
 
@@ -271,7 +271,7 @@ Formula: `CC = 1 (base) + number of decision points`
 
 Decision points include:
 - `if`, `elif`, `for`, `while` statements
-- `match`/`case` statements (Godot 4.x only)
+- `when` pattern guards, raw strings, `&`/`^` literals (Godot 4.x — see gdmetrics-g4)
 - Logical operators (`and`, `or`, `not`)
 
 ### Cognitive Complexity (C-COG)
@@ -280,7 +280,7 @@ Formula: `C-COG = sum of (1 + nesting_depth) for each control structure`
 
 - Each control structure adds +1 base
 - Each nesting level adds +1 to the contribution
-- `case` statements add +1 regardless of nesting depth
+- Match arms add flat C-COG (patterns + optional guard); see `docs/EDGE_CASES.md`
 
 ## Testing
 
@@ -321,10 +321,10 @@ godot --headless --script tests/validate_confidence.gd -- --step 0.1 --apply
 ### CI Infrastructure
 
 **CI Environment:**
-- **Godot Version**: 4.2.0 (headless mode only)
-- **OS**: Ubuntu Linux (latest)
-- **Frequency**: Manual / local testing only (no automated Godot 3.x CI in this repository)
-- **Status**: See GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+- **Godot Version**: Godot 3.5.x (local / manual headless runs)
+- **OS**: Developer machine (no automated Godot 3.x CI in this repository)
+- **Frequency**: Manual / local testing only
+- **Status**: No workflow in this repo; automated CI lives in [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4)
 
 ### Fixture Files & Tokenization Errors
 

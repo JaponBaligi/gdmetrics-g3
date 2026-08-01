@@ -1,5 +1,6 @@
-tool
+﻿tool
 extends Control
+const _VERBOSE_TRACE = false
 class_name ComplexityDockPanel
 
 # Displays complexity analysis results and controls (Godot 3.x version)
@@ -124,10 +125,10 @@ func _apply_editor_theme():
 	pass
 
 func _on_analyze_pressed():
-	print("[DockPanel] Analyze button pressed")
+	if _VERBOSE_TRACE: print("[DockPanel] Analyze button pressed")
 	# Wrap signal emission in error handling
 	emit_signal("analyze_requested")
-	print("[DockPanel] Signal emitted")
+	if _VERBOSE_TRACE: print("[DockPanel] Signal emitted")
 
 func _on_cancel_pressed():
 	emit_signal("cancel_requested")
@@ -252,3 +253,5 @@ func set_analyze_button_enabled(enabled: bool):
 func set_cancel_button_enabled(enabled: bool):
 	if cancel_button != null:
 		cancel_button.disabled = not enabled
+
+

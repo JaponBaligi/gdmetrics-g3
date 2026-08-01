@@ -20,22 +20,19 @@ func run_verify() -> int:
 	_errors.clear()
 	_warnings.clear()
 	_api_differences.clear()
-	var version_info = Engine.get_version_info()
-	var is_godot_3 = version_info.get("major", 0) == 3
-	print("Godot version: %s" % ("3.x" if is_godot_3 else "4.x"))
+	print("Godot version: 3.x (gdmetrics-g3)")
 	print("")
-	_check_dock_panel(is_godot_3)
-	_check_config_dialog(is_godot_3)
-	_check_annotation_manager(is_godot_3)
+	_check_dock_panel()
+	_check_config_dialog()
+	_check_annotation_manager()
 	_check_async_analyzer()
 	_print_summary()
 	return 0 if _passed else 1
 
-func _check_dock_panel(is_godot_3: bool):
+func _check_dock_panel():
 	print("Checking dock_panel.gd...")
-	var file_helper_script = "res://tests/file_helper_3.gd" if is_godot_3 else "res://tests/file_helper_4.gd"
-	var file_helper = load(file_helper_script).new()
-	var path = "res://addons/gdscript_complexity/gd3/dock_panel.gd" if is_godot_3 else "res://addons/gdscript_complexity/gd4/dock_panel.gd"
+	var file_helper = load("res://tests/file_helper_3.gd").new()
+	var path = "res://addons/gdscript_complexity/gd3/dock_panel.gd"
 	if not file_helper.file_exists(path):
 		_errors.append("dock_panel.gd not found")
 		_passed = false
@@ -45,25 +42,18 @@ func _check_dock_panel(is_godot_3: bool):
 		_errors.append("dock_panel.gd does not extend Control")
 		_passed = false
 		return
-	if content.find("@tool") < 0:
-		_warnings.append("dock_panel.gd missing @tool annotation")
+	if content.find("tool") < 0:
+		_warnings.append("dock_panel.gd missing tool annotation")
 	if content.find("set_anchors_and_offsets_preset") >= 0:
-		if is_godot_3:
-			_api_differences.append("dock_panel.gd uses set_anchors_and_offsets_preset (4.x API) - should use set_anchors_and_margins_preset in 3.x")
-		else:
-			print("  ✓ dock_panel.gd uses correct 4.x anchor API")
+		_api_differences.append("dock_panel.gd uses set_anchors_and_offsets_preset (4.x API) - should use set_anchors_and_margins_preset in 3.x")
 	if content.find("pressed.connect") >= 0:
-		if is_godot_3:
-			_api_differences.append("dock_panel.gd uses pressed.connect (4.x signal syntax) - should use pressed in 3.x")
-		else:
-			print("  ✓ dock_panel.gd uses correct 4.x signal syntax")
+		_api_differences.append("dock_panel.gd uses pressed.connect (4.x signal syntax) - should use pressed in 3.x")
 	print("  ✓ dock_panel.gd structure valid")
 
-func _check_config_dialog(is_godot_3: bool):
+func _check_config_dialog():
 	print("Checking config_dialog.gd...")
-	var file_helper_script = "res://tests/file_helper_3.gd" if is_godot_3 else "res://tests/file_helper_4.gd"
-	var file_helper = load(file_helper_script).new()
-	var path = "res://addons/gdscript_complexity/gd3/config_dialog.gd" if is_godot_3 else "res://addons/gdscript_complexity/gd4/config_dialog.gd"
+	var file_helper = load("res://tests/file_helper_3.gd").new()
+	var path = "res://addons/gdscript_complexity/gd3/config_dialog.gd"
 	if not file_helper.file_exists(path):
 		_errors.append("config_dialog.gd not found")
 		_passed = false
@@ -73,76 +63,50 @@ func _check_config_dialog(is_godot_3: bool):
 		_errors.append("config_dialog.gd does not extend AcceptDialog")
 		_passed = false
 		return
-	if content.find("@tool") < 0:
-		_warnings.append("config_dialog.gd missing @tool annotation")
+	if content.find("tool") < 0:
+		_warnings.append("config_dialog.gd missing tool annotation")
 	if content.find("set_anchors_and_offsets_preset") >= 0:
-		if is_godot_3:
-			_api_differences.append("config_dialog.gd uses set_anchors_and_offsets_preset (4.x API) - should use set_anchors_and_margins_preset in 3.x")
-		else:
-			print("  ✓ config_dialog.gd uses correct 4.x anchor API")
+		_api_differences.append("config_dialog.gd uses set_anchors_and_offsets_preset (4.x API) - should use set_anchors_and_margins_preset in 3.x")
 	if content.find("add_theme_constant_override") >= 0:
-		if is_godot_3:
-			_api_differences.append("config_dialog.gd uses add_theme_constant_override (4.x API) - may need add_constant_override in 3.x")
-		else:
-			print("  ✓ config_dialog.gd uses correct 4.x theme API")
+		_api_differences.append("config_dialog.gd uses add_theme_constant_override (4.x API) - may need add_constant_override in 3.x")
 	print("  ✓ config_dialog.gd structure valid")
 
-func _check_annotation_manager(is_godot_3: bool):
+func _check_annotation_manager():
 	print("Checking annotation_manager.gd...")
-	var file_helper_script = "res://tests/file_helper_3.gd" if is_godot_3 else "res://tests/file_helper_4.gd"
-	var file_helper = load(file_helper_script).new()
-	var path = "res://addons/gdscript_complexity/gd3/annotation_manager.gd" if is_godot_3 else "res://addons/gdscript_complexity/gd4/annotation_manager.gd"
+	var file_helper = load("res://tests/file_helper_3.gd").new()
+	var path = "res://addons/gdscript_complexity/gd3/annotation_manager.gd"
 	if not file_helper.file_exists(path):
 		_errors.append("annotation_manager.gd not found")
 		_passed = false
 		return
 	var content = file_helper.read_file(path)
-	if is_godot_3:
-		if content.find("extends Reference") < 0:
-			_errors.append("annotation_manager.gd does not extend Reference")
-			_passed = false
-			return
-	else:
-		if content.find("extends RefCounted") < 0:
-			_errors.append("annotation_manager.gd does not extend RefCounted")
-			_passed = false
-			return
-	if content.find("@tool") < 0:
-		_warnings.append("annotation_manager.gd missing @tool annotation")
-	if content.find("add_error_annotation") >= 0 and content.find("set_error") >= 0:
-		print("  ✓ annotation_manager.gd supports both 3.x (set_error) and 4.x (add_error_annotation) APIs")
-	else:
-		_warnings.append("annotation_manager.gd may not support both 3.x and 4.x annotation APIs")
+	if content.find("extends Reference") < 0:
+		_errors.append("annotation_manager.gd does not extend Reference")
+		_passed = false
+		return
+	if content.find("tool") < 0:
+		_warnings.append("annotation_manager.gd missing tool annotation")
+	if content.find("set_error") < 0:
+		_warnings.append("annotation_manager.gd may not support 3.x set_error annotation API")
 	print("  ✓ annotation_manager.gd structure valid")
 
 func _check_async_analyzer():
 	print("Checking async_analyzer.gd...")
-	var is_godot_3 = Engine.get_version_info().get("major", 0) == 3
-	var file_helper_script = "res://tests/file_helper_3.gd" if is_godot_3 else "res://tests/file_helper_4.gd"
-	var file_helper = load(file_helper_script).new()
-	var path = "res://addons/gdscript_complexity/gd3/async_analyzer.gd" if is_godot_3 else "res://addons/gdscript_complexity/gd4/async_analyzer.gd"
+	var file_helper = load("res://tests/file_helper_3.gd").new()
+	var path = "res://addons/gdscript_complexity/gd3/async_analyzer.gd"
 	if not file_helper.file_exists(path):
 		_errors.append("async_analyzer.gd not found")
 		_passed = false
 		return
 	var content = file_helper.read_file(path)
-	if is_godot_3:
-		if content.find("extends Reference") < 0:
-			_errors.append("async_analyzer.gd does not extend Reference")
-			_passed = false
-			return
-	else:
-		if content.find("extends RefCounted") < 0:
-			_errors.append("async_analyzer.gd does not extend RefCounted")
-			_passed = false
-			return
-	if content.find("@tool") < 0:
-		_warnings.append("async_analyzer.gd missing @tool annotation")
+	if content.find("extends Reference") < 0:
+		_errors.append("async_analyzer.gd does not extend Reference")
+		_passed = false
+		return
+	if content.find("tool") < 0:
+		_warnings.append("async_analyzer.gd missing tool annotation")
 	if content.find("files.is_empty()") >= 0:
-		if is_godot_3:
-			_api_differences.append("async_analyzer.gd uses is_empty() (4.x API) - should use size() == 0 in 3.x")
-		else:
-			print("  ✓ async_analyzer.gd uses correct 4.x array API")
+		_api_differences.append("async_analyzer.gd uses is_empty() (4.x API) - should use size() == 0 in 3.x")
 	print("  ✓ async_analyzer.gd structure valid")
 
 func _print_summary():

@@ -15,10 +15,7 @@ func _init():
 		print("Usage: godot --script test_tokenizer.gd -- <file.gd>")
 		return
 	
-	var version_info = Engine.get_version_info()
-	var is_godot_3 = version_info.get("major", 0) == 3
-	var tokenizer_script = "res://addons/gdscript_complexity/src/gd3/tokenizer.gd" if is_godot_3 else "res://addons/gdscript_complexity/src/tokenizer.gd"
-	var tokenizer = load(tokenizer_script).new()
+	var tokenizer = load("res://addons/gdscript_complexity/src/gd3/tokenizer.gd").new()
 	var tokens = tokenizer.tokenize_file(file_path)
 	var errors = tokenizer.get_errors()
 	

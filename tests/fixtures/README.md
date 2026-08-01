@@ -12,8 +12,8 @@ This directory contains GDScript test files with known CC (Cyclomatic Complexity
 | `for_loop.gd` | 2 | 2 | Single for loop (depth 1) |
 | `while_loop.gd` | 2 | 2 | Single while loop (depth 1) |
 | `nested_control_flow.gd` | 4 | 9 | Nested if/for structures (depth 1/2/3) |
-| `match_statement.gd` | 2 | 5 | Match statement with returns (Godot 4.x only) |
-| `logical_operators.gd` | 5 | 8 | Logical operators (and/or) across two ifs |
+| `match_statement.gd` | — | — | Legacy match fixture; see `edge_cases/match_*.gd` for arm-aware expectations |
+| `logical_operators.gd` | 5 | 10 | Logical operators (and/or) across two ifs (+ return penalties) |
 | `deep_nesting.gd` | 5 | 20+ | Deeply nested structures (10+ levels) |
 | `class_with_inheritance.gd` | 2 | 2 | Class with extends |
 | `empty_file.gd` | 1 | 0 | Empty file (base CC only) |

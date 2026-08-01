@@ -1,12 +1,9 @@
 extends Object
 
-# Report generator for Godot 3.x & 4.x (to_json/JSON.stringify, File/FileAccess)
+# Report generator for Godot 3.x (to_json/var2str, File)
 
 const ADDON_ROOT := "res://addons/gdscript_complexity"
 const SRC_ROOT := ADDON_ROOT + "/src"
-
-func _get_is_godot_3() -> bool:
-	return Engine.get_version_info().get("major", 0) == 3
 
 var FORBIDDEN_OUTPUT_PATHS = [
 	"project.godot",
@@ -19,10 +16,16 @@ var FORBIDDEN_OUTPUT_PATHS = [
 
 var _error_codes = null
 
+func _datetime_string() -> String:
+	var info = OS.get_datetime()
+	return "%04d-%02d-%02dT%02d:%02d:%02d" % [
+		info.year, info.month, info.day, info.hour, info.minute, info.second
+	]
+
 func generate_report(project_result, config) -> Dictionary:
 	var report = {
 		"version": "1.0",
-		"timestamp": Time.get_datetime_string_from_system(),
+		"timestamp": _datetime_string(),
 		"project": {
 			"total_files": project_result.total_files,
 			"successful_files": project_result.successful_files,
@@ -107,7 +110,12 @@ func _format_file_results(file_results: Array) -> Array:
 			"confidence": result.confidence,
 			"cc_breakdown": result.cc_breakdown,
 			"cog_breakdown": result.cog_breakdown,
-			"errors": result.errors
+			"errors": result.errors,
+			"max_nesting_depth": result.max_nesting_depth,
+			"match_arm_count": result.match_arm_count,
+			"lambda_count": result.lambda_count,
+			"loc_code": result.loc_code,
+			"max_params": result.max_params
 		}
 		if result.success:
 			file_data["functions"] = _format_functions(result.functions, result.per_function_cog)
@@ -148,27 +156,14 @@ func write_report(report: Dictionary, output_path: String) -> bool:
 	if not _check_output_overwrite(output_path):
 		return false
 	
-	# Convert to JSON string
-	var json_string: String
-	if _get_is_godot_3():
-		json_string = var2str(report)  # Fallback for Godot 3
-	else:
-		var json = JSON.new()
-		json_string = json.stringify(report)
+	var json_string = to_json(report)
 	
-	# Write to file
-	if _get_is_godot_3():
-		var file = File.new()
-		var err = file.open(output_path, File.WRITE)
-		if err != OK:
-			return false
-		file.store_string(json_string)
-		file.close()
-	else:
-		var file = FileAccess.open(output_path, FileAccess.WRITE)
-		if file == null:
-			return false
-		file.store_string(json_string)
+	var file = File.new()
+	var err = file.open(output_path, File.WRITE)
+	if err != OK:
+		return false
+	file.store_string(json_string)
+	file.close()
 	
 	return true
 
@@ -177,18 +172,12 @@ func write_csv(csv_text: String, output_path: String) -> bool:
 	if not _check_output_overwrite(output_path):
 		return false
 	
-	if _get_is_godot_3():
-		var file = File.new()
-		var err = file.open(output_path, File.WRITE)
-		if err != OK:
-			return false
-		file.store_string(csv_text)
-		file.close()
-	else:
-		var file = FileAccess.open(output_path, FileAccess.WRITE)
-		if file == null:
-			return false
-		file.store_string(csv_text)
+	var file = File.new()
+	var err = file.open(output_path, File.WRITE)
+	if err != OK:
+		return false
+	file.store_string(csv_text)
+	file.close()
 	
 	return true
 

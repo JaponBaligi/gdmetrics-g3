@@ -16,7 +16,6 @@ var file_path: String = "res://complexity_analyzer.log"
 var level: String = LEVEL_INFO
 
 var _file_helper = null
-var _is_godot_3: bool = false
 var _time_helper = null
 var _time_helper_path: String = ""
 
@@ -28,8 +27,7 @@ var _level_order = {
 }
 
 func _init():
-	var version_info = Engine.get_version_info()
-	_is_godot_3 = version_info.get("major", 0) == 3
+	pass
 
 func configure(logging_config: Dictionary) -> void:
 	if logging_config == null:
@@ -85,7 +83,7 @@ func _append_file(message: String) -> void:
 func _ensure_file_helper():
 	if _file_helper != null:
 		return _file_helper
-	var helper_script = SRC_ROOT + "/gd3/file_helper.gd"  # Works for both Godot 3 & 4
+	var helper_script = SRC_ROOT + "/gd3/file_helper.gd"
 	var helper_resource = load(helper_script)
 	if helper_resource != null:
 		_file_helper = helper_resource.new()
@@ -103,7 +101,7 @@ func _get_timestamp() -> String:
 func _ensure_time_helper():
 	if _time_helper != null:
 		return _time_helper
-	_time_helper_path = SRC_ROOT + ("/gd3/time_helper.gd" if _is_godot_3 else "/gd4/time_helper.gd")
+	_time_helper_path = SRC_ROOT + "/gd3/time_helper.gd"
 	var helper_resource = load(_time_helper_path)
 	if helper_resource == null:
 		return null
@@ -113,4 +111,4 @@ func _ensure_time_helper():
 
 func _debug_time_helper():
 	if Engine.is_editor_hint():
-		print("[ComplexityAnalyzer] Time helper: %s (godot3=%s)" % [_time_helper_path, str(_is_godot_3)])
+		print("[ComplexityAnalyzer] Time helper: %s" % _time_helper_path)
