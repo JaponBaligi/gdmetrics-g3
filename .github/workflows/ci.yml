@@ -20,14 +20,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # chickensoft/setup-godot does not support Godot 3.x — install official binary
+      # chickensoft/setup-godot does not support Godot 3.x — install official headless binary
       - name: Install Godot 3.5.3
         run: |
           set -euo pipefail
           curl -fsSL -o godot.zip \
-            https://github.com/godotengine/godot/releases/download/3.5.3-stable/Godot_v3.5.3-stable_linux.x86_64.zip
+            https://github.com/godotengine/godot/releases/download/3.5.3-stable/Godot_v3.5.3-stable_linux_headless.64.zip
           unzip -q godot.zip
-          sudo install -m 755 Godot_v3.5.3-stable_linux.x86_64 /usr/local/bin/godot
+          sudo install -m 755 Godot_v3.5.3-stable_linux_headless.64 /usr/local/bin/godot
           godot --version
 
       - name: Run CI analysis
