@@ -24,11 +24,17 @@ jobs:
       - name: Install Godot 3.5.3
         run: |
           set -euo pipefail
-          curl -fsSL -o godot.zip \
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq unzip
+          curl -fL --retry 3 -o godot.zip \
             https://github.com/godotengine/godot/releases/download/3.5.3-stable/Godot_v3.5.3-stable_linux_headless.64.zip
-          unzip -q godot.zip
-          sudo install -m 755 Godot_v3.5.3-stable_linux_headless.64 /usr/local/bin/godot
-          godot --version
+          unzip -l godot.zip
+          unzip -qo godot.zip
+          ls -la Godot_v3.5.3-stable_linux_headless.64
+          chmod +x Godot_v3.5.3-stable_linux_headless.64
+          sudo mv Godot_v3.5.3-stable_linux_headless.64 /usr/local/bin/godot
+          which godot
+          godot --version || true
 
       - name: Run CI analysis
         run: |
