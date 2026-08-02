@@ -2,11 +2,11 @@ tool
 extends Reference
 class_name AnnotationManager
 
-# Adds complexity warnings to script editor (Godot 3.x)
+# Complexity findings for Godot 3.x (no script gutter API — console fallback only).
 
 var script_editor: Object = null
 var has_annotation_support: bool = false
-var annotation_api: String = "none" 
+var annotation_api: String = "none"
 var version_adapter = null
 var _supported_severities = ["error", "warning", "info"]
 
@@ -15,83 +15,78 @@ func _init(adapter = null):
 	_detect_annotation_support()
 
 func _detect_annotation_support():
-	if not Engine.is_editor_hint():
-		has_annotation_support = false
-		annotation_api = "none"
-		return
-	
-	# In Godot 3.x, EditorInterface is not available as singleton
-	# Editor annotations are not supported in 3.x
 	has_annotation_support = false
 	annotation_api = "none"
-	print("[ComplexityAnalyzer] Editor annotations not available in Godot 3.x")
-	return
+	if Engine.is_editor_hint():
+		print("[ComplexityAnalyzer] Editor annotations not available in Godot 3.x")
 
 func add_complexity_annotation(script_path: String, line: int, message: String, severity: String = "warning"):
 	severity = _normalize_severity(severity)
 	if script_path == "" or line < 1:
 		_fallback_log(script_path, line, "Invalid annotation target", "warning")
 		return
-	if not has_annotation_support:
-		_fallback_log(script_path, line, message, severity)
-		return
-	
-	if script_editor == null:
-		_fallback_log(script_path, line, message, severity)
-		return
-	
-	if annotation_api == "set_error":
-		_set_error_3x(script_path, line, message, severity)
-	else:
-		_fallback_log(script_path, line, message, severity)
+	_fallback_log(script_path, line, message, severity)
 
-func _set_error_3x(script_path: String, line: int, message: String, severity: String):
-	if not script_editor.has_method("set_error"):
-		_fallback_log(script_path, line, message, severity)
-		return
-	
-	var full_message = "[%s] %s" % [severity.to_upper(), message]
-	script_editor.set_error(script_path, line, full_message)
+func add_cc_annotation(script_path: String, line: int, cc_value: int, threshold: int, severity: String = "warning"):
+	var message = "High Cyclomatic Complexity: %d (threshold_fail: %d)" % [cc_value, threshold]
+	add_complexity_annotation(script_path, line, message, severity)
+
+func add_cog_annotation(script_path: String, line: int, cog_value: int, threshold: int, severity: String = "warning"):
+	var message = "High Cognitive Complexity: %d (threshold_fail: %d)" % [cog_value, threshold]
+	add_complexity_annotation(script_path, line, message, severity)
 
 func add_cc_warning(script_path: String, line: int, cc_value: int, threshold: int):
-	var message = "High Cyclomatic Complexity: %d (threshold: %d)" % [cc_value, threshold]
-	add_complexity_annotation(script_path, line, message, "warning")
+	add_cc_annotation(script_path, line, cc_value, threshold, "warning")
 
 func add_cog_warning(script_path: String, line: int, cog_value: int, threshold: int):
-	var message = "High Cognitive Complexity: %d (threshold: %d)" % [cog_value, threshold]
-	add_complexity_annotation(script_path, line, message, "warning")
+	add_cog_annotation(script_path, line, cog_value, threshold, "warning")
 
-func annotate_file_results(file_result, cc_threshold: int, cog_threshold: int):
+## Annotate functions that meet or exceed threshold_fail (same contract as gd4).
+func annotate_file_results(file_result, cc_fail: int, cog_fail: int):
 	if not file_result.success:
 		return
-	
-	var script_path = file_result.file_path
-	
-	if file_result.cc > cc_threshold:
-		add_cc_warning(script_path, 1, file_result.cc, cc_threshold)
-	
-	if file_result.cog > cog_threshold:
-		add_cog_warning(script_path, 1, file_result.cog, cog_threshold)
-	
-	for func_info in file_result.functions:
-		if file_result.per_function_cog.has(func_info.name):
-			var cog = file_result.per_function_cog[func_info.name]
-			if cog > cog_threshold:
-				add_cog_warning(script_path, func_info.start_line, cog, cog_threshold)
 
-func clear_annotations(script_path: String):
-	if not has_annotation_support or script_editor == null:
-		return
-	
-	if annotation_api == "set_error" and script_editor.has_method("clear_errors"):
-		script_editor.clear_errors(script_path)
-	else:
-		_fallback_log(script_path, 1, "clear_annotations not supported", "info")
+	var script_path = file_result.file_path
+	var annotated_any = false
+	var scanner = load("res://addons/gdscript_complexity/src/core/directive_scanner.gd").new()
+	var directives = file_result.per_function_directives
+	if typeof(directives) != TYPE_DICTIONARY:
+		directives = {}
+	for func_info in file_result.functions:
+		if scanner.is_ignored(func_info, directives):
+			continue
+		var fname = func_info.name
+		var line = func_info.start_line
+		if line < 1:
+			line = 1
+		if file_result.per_function_cc.has(fname):
+			var cc = int(file_result.per_function_cc[fname])
+			if cc >= cc_fail:
+				add_cc_annotation(script_path, line, cc, cc_fail, "warning")
+				annotated_any = true
+		if file_result.per_function_cog.has(fname):
+			var cog = int(file_result.per_function_cog[fname])
+			if cog >= cog_fail:
+				add_cog_annotation(script_path, line, cog, cog_fail, "warning")
+				annotated_any = true
+	scanner = null
+
+	if not annotated_any and file_result.functions.size() == 0:
+		if int(file_result.cc) >= cc_fail:
+			add_cc_annotation(script_path, 1, int(file_result.cc), cc_fail, "warning")
+		if int(file_result.cog) >= cog_fail:
+			add_cog_annotation(script_path, 1, int(file_result.cog), cog_fail, "warning")
+
+func clear_annotations(_script_path: String):
+	pass
+
+func clear_all_annotations():
+	pass
 
 func _fallback_log(script_path: String, line: int, message: String, severity: String):
 	var log_message = "[ComplexityAnalyzer] %s:%d - %s: %s" % [script_path, line, severity.to_upper(), message]
-	if severity == "error":
-		push_error(log_message)
+	if severity == "error" or severity == "warning":
+		push_warning(log_message)
 	else:
 		print(log_message)
 
