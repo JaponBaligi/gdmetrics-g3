@@ -12,12 +12,12 @@ This directory contains GDScript test files with known CC (Cyclomatic Complexity
 | `for_loop.gd` | 2 | 2 | Single for loop (depth 1) |
 | `while_loop.gd` | 2 | 2 | Single while loop (depth 1) |
 | `nested_control_flow.gd` | 4 | 9 | Nested if/for structures (depth 1/2/3) |
-| `match_statement.gd` | — | — | Legacy match fixture; see `edge_cases/match_*.gd` for arm-aware expectations |
-| `logical_operators.gd` | 5 | 10 | Logical operators (and/or) across two ifs (+ return penalties) |
+| `match_statement.gd` | 2 | 5 | Match statement with returns |
+| `logical_operators.gd` | 5 | 8 | Logical operators (and/or) across two ifs |
 | `deep_nesting.gd` | 5 | 20+ | Deeply nested structures (10+ levels) |
 | `class_with_inheritance.gd` | 2 | 2 | Class with extends |
 | `empty_file.gd` | 1 | 0 | Empty file (base CC only) |
-| `with_yield.gd` | 2 | 2 | Godot 3.x yield syntax (if at depth 1) |
+| `with_yield.gd` | 2 | 2 | yield syntax fixture (if at depth 1) |
 | `no_match.gd` | 3 | 6 | File without match (returns inside control flow) |
 | `annotations.gd` | 2 | 2 | File with @tool, @export annotations |
 | `malformed_syntax.gd` | - | - | Malformed syntax (should handle gracefully) |
@@ -25,19 +25,11 @@ This directory contains GDScript test files with known CC (Cyclomatic Complexity
 | `unbalanced_brackets.gd` | - | - | Unbalanced brackets (should handle gracefully) |
 | `large_file.gd` | - | - | Large file placeholder (for performance testing) |
 
-## CC Calculation Rules
+## CC / C-COG rules
 
-- Base complexity: 1
-- Each `if`, `elif`, `for`, `while`, `match`, `case` adds +1
-- Each logical operator (`and`, `or`, `not`) adds +1
+Canonical scoring and edge constructs: [docs/EDGE_CASES.md](../../docs/EDGE_CASES.md).
 
-## C-COG Calculation Rules
-
-- Each control structure adds +1 base
-- Each nesting level adds +1 to the contribution
-- Early exits (`return`, `break`, `continue`) add +1 only when inside control flow
-- `case` statements add +1 regardless of nesting depth (no nesting penalty)
-- Formula: `contribution = 1 + depth`
+GDScript has no `case` keyword — match arms are indented lines ending with `:` under `match`.
 
 ## Usage
 

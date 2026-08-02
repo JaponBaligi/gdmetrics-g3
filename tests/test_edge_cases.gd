@@ -64,9 +64,12 @@ func _check_one(ba, cfg, adapter, gd_path: String, exp_path: String) -> bool:
 
 	var arms = 0
 	var lambdas = 0
+	var has_guard = false
 	for n in nodes:
 		if n.type == "case":
 			arms += 1
+			if n.case_has_guard:
+				has_guard = true
 		elif n.type == "lambda":
 			lambdas += 1
 
@@ -109,6 +112,15 @@ func _check_one(ba, cfg, adapter, gd_path: String, exp_path: String) -> bool:
 		return false
 	if expected.has("match_arms") and arms != int(expected["match_arms"]):
 		print("FAIL %s match_arms got=%d want=%s" % [gd_path, arms, expected["match_arms"]])
+		return false
+	if expected.has("lambda_count") and lambdas != int(expected["lambda_count"]):
+		print("FAIL %s lambda_count got=%d want=%s" % [gd_path, lambdas, expected["lambda_count"]])
+		return false
+	if expected.has("lambda_count_min") and lambdas < int(expected["lambda_count_min"]):
+		print("FAIL %s lambda_count_min got=%d" % [gd_path, lambdas])
+		return false
+	if expected.has("has_guard") and has_guard != bool(expected["has_guard"]):
+		print("FAIL %s has_guard got=%s want=%s" % [gd_path, has_guard, expected["has_guard"]])
 		return false
 	if expected.has("static_funcs") and static_funcs != int(expected["static_funcs"]):
 		print("FAIL %s static_funcs got=%d" % [gd_path, static_funcs])

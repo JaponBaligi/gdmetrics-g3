@@ -42,7 +42,7 @@ const KEYWORDS = [
 	"if", "elif", "else", "for", "while", "break", "continue", "return",
 	"func", "class", "extends", "var", "const", "signal", "class_name",
 	"and", "or", "not", "true", "false", "null",
-	"pass", "self", "super", "match", "yield", "await",
+	"pass", "self", "super", "match", "when", "yield", "await",
 	"in", "is", "as", "enum", "assert", "breakpoint", "preload", "load",
 	"static", "void", "tool", "onready", "export", "setget",
 	"master", "puppet", "remote", "sync", "remotesync", "mastersync", "puppetsync"

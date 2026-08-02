@@ -25,14 +25,16 @@ Reference for tokenizer / control-flow fidelity. Sources: Godot `gdscript_tokeni
 | P3 | `@"…"` NodePath-style literal | 4 (mixed) | P1 | No unknown `@` | `at_nodepath.gd` |
 | S3 | Triple string + trail (`.dedent()…("\n")`) | 3+4 | P0 | No false `\` / balance errs | `triple_string_trail.gd` |
 | S4 | Triple closer then `\` line cont | 3+4 | P0 | Continuation joins next line | `triple_string_cont_after.gd` |
+| S5 | Regular `"…"` / `'…'` spanning lines | 4 | P0 | No unterminated-string errs | `multiline_regular_string.gd` |
 | λ1 | Nested lambda | 4 | P1 | Lambda + body scoring | `lambda_nested.gd` |
 | E1 | Empty file | 3+4 | P0 | success, CC=0 | `empty.gd` |
 | E2 | BOM / CRLF | 3+4 | P2 | No crash | `bom_crlf.gd` |
 | E3 | Unicode identifier | 3+4 | P2 | IDENTIFIER or soft warn | `unicode_ident.gd` |
 | A1 | `yield` / `await` | 3 / 4 | P2 | Not CC decisions | `yield_await.gd` |
+| D1 | `# gdmetrics:ignore` / `:pin` | 3+4 | P0 | Gate/Top-fixes skip or pin | `directive_ignore_pin.gd` |
 
 ## Scoring notes
 
-- **CC**: base 1 + each `if`/`elif`/`for`/`while`/`match` + each **match arm** + `and`/`or`/`not` (+ `&&`/`||` when `count_logical_operators`) + ternary `if`.
-- **C-COG**: Sonar-style nesting; match arms use flat pattern contribution (`1 + (patterns-1) + guard`); statement `if` ≠ ternary `if`.
-- **`case` keyword**: does not exist in GDScript; arms are indented lines ending with `:` under `match`.
+- **CC**: base 1 + each `if`/`elif`/`for`/`while`/`match` + each **match arm** + `and`/`or`/`not` (+ `&&`/`||` when `count_logical_operators`) + ternary `if`. Lambda *bodies* still contribute decisions to file CC.
+- **C-COG**: Sonar-style nesting; match arms use flat pattern contribution (`1 + (patterns-1) + guard`); statement `if` ≠ ternary `if`. Each lambda is +1; lambda body control-flow does **not** leak into the enclosing scope (nested lambdas still each +1).
+- **`case` keyword**: does not exist in GDScript; arms are indented lines ending with `:` under `match`. Nested `match` tracks arm indent per match block.
