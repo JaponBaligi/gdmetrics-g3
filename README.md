@@ -1,5 +1,7 @@
 # GDScript Complexity Analyzer
 
+**Know what to fix before you hate the project.**
+
 **gdmetrics is a static analyzer that measures code complexity and maintainability metrics for Godot (GDScript) projects.**
 
 > ***bad code, target PCs / optimized code, target electricity.***
@@ -68,11 +70,11 @@ For detailed compatibility information, see [docs/COMPATIBILITY.md](docs/COMPATI
 
 ### Editor Plugin
 
-1. Open the dock panel (should appear automatically when plugin is enabled)
-2. Click "Analyze Project" to analyze all GDScript files
-3. View results in the dock panel
-4. Click on files/functions to see detailed metrics
-5. Use "Configure" button to adjust thresholds and settings
+1. Open the dock panel (appears when the plugin is enabled)
+2. Click **Find what to fix** to analyze all GDScript files
+3. Start with **Top fixes** (plain labels: OK / Hard to read / Fix soon)
+4. Double-click a row (or select + **Open**) to jump to that function
+5. Use **Config** only if you need custom thresholds
 
 ### CLI Mode
 
