@@ -2,11 +2,11 @@
 
 ## Installation
 
-This repository is for **Godot 3.x**. For Godot 4.x, see [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4).
+This repository is for **Godot 4.x**. For Godot 3.x, see [gdmetrics-g3](https://github.com/JaponBaligi/gdmetrics-g3).
 
 ```bash
-git clone https://github.com/JaponBaligi/gdmetrics-g3
-cd gdmetrics-g3
+git clone https://github.com/JaponBaligi/gdmetrics-g4
+cd gdmetrics-g4
 ```
 
 ### Install the plugin
@@ -36,7 +36,30 @@ Create `complexity_config.json` in the project root (or copy `complexity_config.
 
 Stable report/config contract: [SCHEMA.md](SCHEMA.md) (`"version": "1.0"`).
 - `report.auto_export`: auto write after analysis
-- `report.annotate_editor`: enable/disable editor warnings
+- `report.annotate_editor`: enable/disable editor warnings (default off)
+- `report.churn_hotspots`: `auto` (default), `on`, or `off` — mark scary files that git recently touched
+- `report.churn_since`: git `--since` window (default `90 days ago`)
+- `report.god_complex_func_min`: how many warn-level functions make a large file “scary” (default `3`)
+
+### Ignore / pin comments
+
+On the line above a function, or trailing on the `func` line:
+
+```gdscript
+# gdmetrics:ignore
+func legacy_mess():
+	pass
+
+# gdmetrics:pin
+func keep_watching():
+	pass
+```
+
+- **ignore** — still scored; hidden from Top fixes and fail counts
+- **pin** — always shown in Top fixes (watch list)
+
+HTML exports include a **What to fix next** section (same ranking as the dock) and **Big scary files** (god-script rollups; Hot = scary + recent git churn when available).
+
 - `performance.enable_caching`: caching on/off
 - `performance.cache_path`: cache directory
 - `performance.incremental_analysis`: analyze only changed files
@@ -51,7 +74,7 @@ Stable report/config contract: [SCHEMA.md](SCHEMA.md) (`"version": "1.0"`).
 
 ### CLI
 ```bash
-godot --no-window -s cli/analyze_project.gd -- \
+godot --headless --script cli/analyze_project.gd -- \
   --project-path . --output report.json --csv-output report.csv
 ```
 
@@ -59,13 +82,13 @@ Each successful run appends one JSON line to `complexity_history.jsonl` (or `rep
 
 Trend vs previous history line (informational):
 ```bash
-godot --no-window -s cli/analyze_project.gd -- \
+godot --headless --script cli/analyze_project.gd -- \
   --project-path . --output report.json --diff
 ```
 
 Compare to a snapshot and fail when `avg_cog` or `fail_count` increases:
 ```bash
-godot --no-window -s cli/analyze_project.gd -- \
+godot --headless --script cli/analyze_project.gd -- \
   --project-path . --output report.json --baseline baseline.jsonl --fail-on-diff-regression
 ```
 
@@ -86,7 +109,7 @@ Enable `report.auto_export` and specify formats:
 
 ## Troubleshooting
 
-- **No editor annotations**: Godot 3.x does not support editor annotations.
+- **No editor annotations**: If annotations are unavailable, the plugin logs warnings to the console.
 - **CSV not generated**: Ensure `report.formats` includes `csv`, set `report.csv_output_path`, or pass `--csv-output` in CLI mode.
 - **Files analyzed: 0**: Check `include`/`exclude` patterns and confirm the project contains `.gd` files under `res://`.
 - **Stale results**: Disable caching (`performance.enable_caching = false`) or delete the cache directory.
@@ -95,6 +118,5 @@ Enable `report.auto_export` and specify formats:
 ## FAQ
 
 - **Does it modify scripts?** No. It reads `.gd` files and writes reports.
-- **Why is Godot 3.x less accurate?** The analyzer uses heuristics and Godot 3.x has fewer parser hooks.
-- **Need Godot 4.x?** Use [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4).
+- **Need Godot 3.x?** Use [gdmetrics-g3](https://github.com/JaponBaligi/gdmetrics-g3).
 - **Can I disable editor warnings?** Yes. Set `report.annotate_editor` to `false`.
