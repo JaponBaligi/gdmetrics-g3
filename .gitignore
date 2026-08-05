@@ -18,6 +18,12 @@ test_results.json
 *.report.json
 *.report.csv
 ci_metrics.json
+out_*.json
+metrics_*.json
+ci_r_*.json
+ci_report_*.json
+ci_report.csv
+ci_report.html
 
 # Cache and logs
 .complexity_cache/
@@ -25,6 +31,10 @@ ci_metrics.json
 *.cache
 *.log
 parse_errors.log
+
+# Local matrix / debug scratch
+g345_*.txt
+tests/_stage.gd
 
 # Test outputs
 test_output/
@@ -90,8 +100,5 @@ after-conflict.md
 docs/PLAN.md
 docs/PROGRESS.md
 docs/CHANGELOG_TEMPLATE.md
-ci_report.csv
-
-ci_report.html
 
 complexity_history.jsonl
