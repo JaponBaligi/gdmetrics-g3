@@ -77,12 +77,12 @@ func is_pinned(func_info, directives: Dictionary = {}) -> bool:
 func _parse_comment(text: String) -> Dictionary:
 	var body = text.strip_edges()
 	if body.begins_with("#"):
-		body = body.substr(1).strip_edges()
+		body = body.substr(1, body.length() - 1).strip_edges()
 	var lower = body.to_lower()
 	var idx = lower.find(PREFIX)
 	if idx < 0:
 		return {}
-	var rest = lower.substr(idx + PREFIX.length()).strip_edges()
+	var rest = lower.substr(idx + PREFIX.length(), lower.length() - (idx + PREFIX.length())).strip_edges()
 	var chunk = rest
 	var space = rest.find(" ")
 	if space >= 0:

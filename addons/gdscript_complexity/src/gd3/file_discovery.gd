@@ -31,7 +31,7 @@ func _sanitize_path(path: String) -> String:
 		sanitized = sanitized.replace("../", "")
 	if not sanitized.begins_with("res://"):
 		while sanitized.begins_with("/"):
-			sanitized = sanitized.substr(1)
+			sanitized = sanitized.substr(1, sanitized.length() - 1)
 	return sanitized
 
 func _find_files_recursive(root_path: String, current_path: String, include_patterns: Array, exclude_patterns: Array, files: Array, depth: int):
@@ -100,9 +100,9 @@ func _is_excluded(dir_path: String, exclude_patterns: Array) -> bool:
 
 func _make_relative(root_path: String, full_path: String) -> String:
 	if full_path.begins_with(root_path):
-		var relative = full_path.substr(root_path.length())
+		var relative = full_path.substr(root_path.length(), full_path.length() - root_path.length())
 		if relative.begins_with("/") or relative.begins_with("\\"):
-			relative = relative.substr(1)
+			relative = relative.substr(1, relative.length() - 1)
 		return "res://" + relative.replace("\\", "/")
 	return full_path
 

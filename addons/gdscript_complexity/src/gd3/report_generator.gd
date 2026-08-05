@@ -16,6 +16,15 @@ var FORBIDDEN_OUTPUT_PATHS = [
 
 var _error_codes = null
 
+# Godot 3.4 has no String.join (added in 3.5). Keep a local helper so scripts can instantiate on 3.4.
+func _join_lines(parts: Array) -> String:
+	var out := ""
+	for i in range(parts.size()):
+		if i > 0:
+			out += "\n"
+		out += str(parts[i])
+	return out
+
 func _datetime_string() -> String:
 	var info = OS.get_datetime()
 	return "%04d-%02d-%02dT%02d:%02d:%02d" % [
@@ -280,7 +289,7 @@ func generate_html(project_result, config) -> String:
 		parts.append("<td class=\"num\">%.2f</td></tr>" % result.confidence)
 	parts.append("</tbody></table>")
 	parts.append("</body></html>")
-	return "\n".join(parts)
+	return _join_lines(parts)
 
 func write_html(html_text: String, output_path: String) -> bool:
 	output_path = _sanitize_path(output_path)
@@ -306,7 +315,7 @@ func _top_fixes_html(project_result, config) -> String:
 	rows.append("<p>Open these first. Status: <span class=\"fix-soon\">Fix soon</span>, <span class=\"hard\">Hard to read</span>, <span class=\"pinned\">Pinned</span>.</p>")
 	if entries.size() == 0:
 		rows.append("<p>Nothing urgent — keep going.</p>")
-		return "\n".join(rows)
+		return _join_lines(rows)
 	rows.append("<table><thead><tr>")
 	rows.append("<th>What</th><th>Status</th><th class=\"num\">CC</th><th class=\"num\">C-COG</th><th>Why</th>")
 	rows.append("</tr></thead><tbody>")
@@ -329,7 +338,7 @@ func _top_fixes_html(project_result, config) -> String:
 			_html_escape(str(entry.get("why", "")))
 		])
 	rows.append("</tbody></table>")
-	return "\n".join(rows)
+	return _join_lines(rows)
 
 func _god_scripts_payload(project_result, config) -> Array:
 	var rollup = load(SRC_ROOT + "/core/god_script_rollup.gd").new()
@@ -354,7 +363,7 @@ func _god_scripts_html(project_result, config) -> String:
 	rows.append("<p>Whole scripts that are huge, Fix soon at file totals, or both. <span class=\"hot\">Hot</span> means scary and recently changed in git (when available).</p>")
 	if gods.size() == 0:
 		rows.append("<p>No god-scripts spotted.</p>")
-		return "\n".join(rows)
+		return _join_lines(rows)
 	rows.append("<table><thead><tr>")
 	rows.append("<th>File</th><th>Status</th><th class=\"num\">CC</th><th class=\"num\">C-COG</th><th class=\"num\">LOC</th><th>Why</th>")
 	rows.append("</tr></thead><tbody>")
@@ -380,7 +389,7 @@ func _god_scripts_html(project_result, config) -> String:
 			_html_escape(reason)
 		])
 	rows.append("</tbody></table>")
-	return "\n".join(rows)
+	return _join_lines(rows)
 
 func _offender_table(file_results: Array, metric: String) -> String:
 	var rows = []
@@ -393,7 +402,7 @@ func _offender_table(file_results: Array, metric: String) -> String:
 			_html_escape(str(result.file_path)), value, result.confidence
 		])
 	rows.append("</tbody></table>")
-	return "\n".join(rows)
+	return _join_lines(rows)
 
 func _svg_cog_bars(file_results: Array) -> String:
 	var items = []
@@ -435,7 +444,7 @@ func _svg_cog_bars(file_results: Array) -> String:
 		])
 		i += 1
 	parts.append("</svg>")
-	return "\n".join(parts)
+	return _join_lines(parts)
 
 func _sanitize_path(path: String) -> String:
 	if path.length() == 0:
@@ -444,9 +453,9 @@ func _sanitize_path(path: String) -> String:
 	while sanitized.find("../") >= 0:
 		sanitized = sanitized.replace("../", "")
 	while sanitized.begins_with("/"):
-		sanitized = sanitized.substr(1)
+		sanitized = sanitized.substr(1, sanitized.length() - 1)
 	if sanitized.begins_with("res://"):
-		sanitized = sanitized.substr(6)
+		sanitized = sanitized.substr(6, sanitized.length() - 6)
 	return sanitized
 
 func _check_output_overwrite(output_path: String) -> bool:
@@ -484,7 +493,7 @@ func _build_csv(rows: Array) -> String:
 				line += ","
 			line += escaped[i]
 		lines.append(line)
-	return "\n".join(lines)
+	return _join_lines(lines)
 
 func _csv_escape(value) -> String:
 	var text = "" if value == null else str(value)

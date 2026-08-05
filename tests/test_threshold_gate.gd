@@ -1,9 +1,15 @@
-# Verifies threshold_gate marks high-complexity fixtures as FAIL under tight limits.
+﻿# Verifies threshold_gate marks high-complexity fixtures as FAIL under tight limits.
 extends SceneTree
+
+func _quit_with(code):
+	if OS.has_method("set_exit_code"):
+		OS.set_exit_code(int(code))
+	quit()
+
 
 func _initialize():
 	var code = run_test()
-	call_deferred("quit", code)
+	_quit_with(code)
 
 func run_test() -> int:
 	print("test_threshold_gate: start")

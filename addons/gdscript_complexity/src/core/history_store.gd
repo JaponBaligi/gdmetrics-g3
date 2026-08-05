@@ -209,9 +209,9 @@ func _sanitize_path(path: String) -> String:
 	while sanitized.find("../") >= 0:
 		sanitized = sanitized.replace("../", "")
 	while sanitized.begins_with("/"):
-		sanitized = sanitized.substr(1)
+		sanitized = sanitized.substr(1, sanitized.length() - 1)
 	if sanitized.begins_with("res://"):
-		sanitized = sanitized.substr(6)
+		sanitized = sanitized.substr(6, sanitized.length() - 6)
 	return sanitized
 
 func _sort_by_cog(arr: Array) -> void:

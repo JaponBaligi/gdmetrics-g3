@@ -97,7 +97,7 @@ func tokenize_file(file_path: String) -> Array:
 		var line = file.get_line()
 		# Strip UTF-8 BOM on first line
 		if line_number == 1 and line.length() > 0 and line.ord_at(0) == 0xFEFF:
-			line = line.substr(1)
+			line = line.substr(1, line.length() - 1)
 		if line_continuation_pending:
 			var stripped = line.strip_edges()
 			if stripped == "" or stripped.begins_with("#"):
@@ -192,7 +192,7 @@ func _tokenize_line_body(line: String, line_number: int, start_i: int, start_col
 				continue
 
 		if current_char == "#":
-			var comment_text = line.substr(i)
+			var comment_text = line.substr(i, line.length() - i)
 			tokens.append(Token.new(TokenType.COMMENT, comment_text, line_number, column))
 			break
 
@@ -330,7 +330,7 @@ func _split_line_continuation(line: String, start_in_str: bool = false, start_qu
 				return {"code": line.substr(0, i), "continues": true, "invalid": false, "column": i + 1}
 			# Mid-line backslash: drop it and flag error
 			return {
-				"code": line.substr(0, i) + line.substr(i + 1),
+				"code": line.substr(0, i) + line.substr(i + 1, line.length() - (i + 1)),
 				"continues": false,
 				"invalid": true,
 				"column": i + 1

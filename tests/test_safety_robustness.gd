@@ -91,20 +91,34 @@ func test_edge_cases():
 	assert_true(tokenizer.get_errors().size() == 0, "Single-line function has no tokenizer errors")
 	_cleanup_file(file_path)
 
+func _join_lines(parts: Array) -> String:
+	var out := ""
+	for i in range(parts.size()):
+		if i > 0:
+			out += "\n"
+		out += str(parts[i])
+	return out
+
 func _build_large_file(line_count: int) -> String:
 	var lines: Array = []
 	lines.append("func huge():")
 	for i in range(line_count):
 		lines.append("\tvar v_%d = %d" % [i, i])
-	return "\n".join(lines) + "\n"
+	return _join_lines(lines) + "\n"
 
 func _build_deep_nesting(depth: int) -> String:
 	var lines: Array = []
 	lines.append("func deep():")
 	for i in range(depth):
-		lines.append("\t".repeat(i + 1) + "if true:")
-	lines.append("\t".repeat(depth + 1) + "return 0")
-	return "\n".join(lines) + "\n"
+		var tabs = ""
+		for _t in range(i + 1):
+			tabs += "\t"
+		lines.append(tabs + "if true:")
+	var tabs_end = ""
+	for _t in range(depth + 1):
+		tabs_end += "\t"
+	lines.append(tabs_end + "return 0")
+	return _join_lines(lines) + "\n"
 
 func _write_file(path: String, content: String):
 	file_helper.write_file(path, content)

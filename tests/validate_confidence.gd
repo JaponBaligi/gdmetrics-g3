@@ -1,7 +1,13 @@
-# Confidence validation and tuning tool
+﻿# Confidence validation and tuning tool
 # Run with: godot --headless --script tests/validate_confidence.gd -- [--apply] [--step 0.1] [--min-r2 0.7] [--metrics-out path]
 
 extends SceneTree
+
+func _quit_with(code):
+	if OS.has_method("set_exit_code"):
+		OS.set_exit_code(int(code))
+	quit()
+
 
 var expected_values = {
 	"simple_function.gd": {"cc": 1, "cog": 0},
@@ -22,21 +28,25 @@ var expected_values = {
 	"unbalanced_brackets.gd": {"cc": 0, "cog": 0}
 }
 
-func _init():
-	_run()
-
 func _initialize():
 	_run()
 
 func _run():
-	var args = OS.get_cmdline_args()
+	var raw = OS.get_cmdline_args()
+	var args = []
+	for ri in range(raw.size()):
+		args.append(raw[ri])
 	var apply_weights = false
 	var step = 0.1
 	var enforce_min_r2 = false
 	var min_r2 = 0.0
 	var metrics_output = ""
 	
-	var dash_index = args.find("--")
+	var dash_index = -1
+	for di in range(args.size()):
+		if args[di] == "--":
+			dash_index = di
+			break
 	if dash_index >= 0:
 		for i in range(dash_index + 1, args.size()):
 			if args[i] == "--apply":
@@ -56,7 +66,7 @@ func _run():
 	var scores = _collect_scores(config, version_adapter)
 	if scores.size() == 0:
 		print("No scores collected, aborting.")
-		call_deferred("quit", 1)
+		_quit_with(1)
 		return
 	
 	var current_r2 = _compute_r2(scores)
@@ -80,7 +90,7 @@ func _run():
 		else:
 			print("Failed to write complexity_config.json")
 	
-	call_deferred("quit", exit_code)
+	_quit_with(exit_code)
 
 func _collect_scores(config, version_adapter) -> Array:
 	var scores = []

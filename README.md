@@ -26,7 +26,7 @@ A Godot EditorPlugin that analyzes GDScript code complexity using Cyclomatic Com
 
 - **Cyclomatic Complexity (CC)**: Measures the number of linearly independent paths through code
 - **Cognitive Complexity (C-COG)**: Measures code readability and maintainability
-- **Godot 3.x**: Built for Godot 3.5 LTS (see [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) for Godot 4.x)
+- **Godot 3.x**: Built for Godot **3.1+** (tested on 3.1.2 / 3.2.3 / 3.3.4 / 3.4.5 / 3.5.3 / 3.6.2; see [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) for Godot 4.x)
 - **CLI Mode**: Run analysis from command line for CI/CD integration
 - **Editor Integration**: Dock panel with complexity results in the editor
 - **JSON Reports**: Export detailed analysis reports
@@ -56,13 +56,17 @@ This repository supports **Godot 3.x** only. Godot 4.x lives in [gdmetrics-g4](h
 
 | Godot Version | Support Level | CI Testing | Notes |
 |---------------|---------------|------------|-------|
-| 3.5.x LTS | ⚠️ **Legacy / Experimental** | ❌ No | Core metrics work; lower accuracy (85-90%) due to parser limitations; for existing projects |
-| 3.0-3.4 | ⚠️ **Legacy / Experimental** | ❌ No | Not officially tested; best-effort support; not recommended for new projects |
+| 3.6.x | ✅ Supported | ❌ No | Same stack as 3.5; local matrix tested (3.6.2) |
+| 3.5.x LTS | ✅ Supported | ✅ CI | Core metrics; lower accuracy (85-90%) vs Godot 4 due to parser limits |
+| 3.4.x | ✅ Supported | ❌ No | Local matrix tested (3.4.5); thin SceneTree CLI entry for Windows |
+| 3.3.x / 3.2.x | ✅ Supported | ❌ No | Local matrix tested (3.3.4 / 3.2.3) |
+| 3.1.x | ✅ Supported | ❌ No | Local matrix tested (3.1.2); use `--output=file` equals-form CLI args |
+| 3.0.x | ❌ Not supported | ❌ No | Typed GDScript + `config_version=4` require Godot 3.1+ |
 
-**Why Godot 3.x is not CI-tested:**
-Upstream Godot 3.x binary availability is limited. Automated CI lives in [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) (Godot 4.2 headless).
+**Why Godot 3.x is not fully CI-tested:**
+Upstream Godot 3.x binary availability is limited. CI in this repo targets 3.5.3; broader coverage is a local matrix. Automated Godot 4 CI lives in [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4).
 
-**Recommendation:** Prefer [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) for new projects. Use this repo for existing Godot 3.5 LTS projects.
+**Recommendation:** Prefer [gdmetrics-g4](https://github.com/JaponBaligi/gdmetrics-g4) for new projects. Use this repo for existing Godot **3.1+** projects (3.5 LTS preferred).
 
 For detailed compatibility information, see [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
@@ -257,7 +261,7 @@ Set `"report.auto_export": true` to automatically write reports after analysis. 
 
 ## Godot 3.x Features
 
-⚠️ **Best-effort / legacy support**
+**Supported on Godot 3.1+**
 - All core metrics work (CC, C-COG)
 - `match` supported via arm detection (GDScript has no `case` keyword)
 - Limited editor integration (no annotations)

@@ -98,7 +98,7 @@ func _hash_string(text: String) -> String:
 func _get_cache_key(file_path: String) -> String:
 	var key = file_path.replace("\\", "/").replace(":", "_").replace("/", "_")
 	if key.length() > 200:
-		key = key.substr(key.length() - 200)
+		key = key.substr(key.length() - 200, 200)
 	return key + ".cache"
 
 # Load cached result for a file

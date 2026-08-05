@@ -3,6 +3,12 @@
 
 extends SceneTree
 
+func _quit_with(code):
+	if OS.has_method("set_exit_code"):
+		OS.set_exit_code(int(code))
+	quit()
+
+
 const ADDON_ROOT := "res://addons/gdscript_complexity"
 const SRC_ROOT := ADDON_ROOT + "/src"
 
@@ -43,7 +49,7 @@ func _init():
 	version_adapter = version_adapter_script.new()
 	
 	run_verification()
-	quit(tests_failed)
+	_quit_with(tests_failed)
 
 func run_verification():
 	print("========================================")
@@ -79,7 +85,12 @@ func run_verification():
 					issues.append("CC: expected %d, got %d" % [expected["cc"], actual_cc])
 				if not cog_match:
 					issues.append("C-COG: expected %d, got %d" % [expected["cog"], actual_cog])
-				print("FAIL: %s (%s)" % [filename, ", ".join(issues)])
+				var issue_text = ""
+				for ii in range(issues.size()):
+					if ii > 0:
+						issue_text += ", "
+					issue_text += str(issues[ii])
+				print("FAIL: %s (%s)" % [filename, issue_text])
 		else:
 			print("SKIP: %s (no expected values)" % filename)
 	

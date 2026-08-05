@@ -1,5 +1,11 @@
-# Run: godot3 --path . --no-window -s tests/test_edge_cases.gd
+﻿# Run: godot3 --path . --no-window -s tests/test_edge_cases.gd
 extends SceneTree
+
+func _quit_with(code):
+	if OS.has_method("set_exit_code"):
+		OS.set_exit_code(int(code))
+	quit()
+
 
 const FIXTURE_DIR = "res://tests/fixtures/edge_cases/"
 
@@ -14,7 +20,7 @@ func _init():
 	var dir = Directory.new()
 	if dir.open(FIXTURE_DIR) != OK:
 		print("FAIL: cannot open ", FIXTURE_DIR)
-		quit(1)
+		_quit_with(1)
 		return
 
 	var passed = 0
@@ -34,7 +40,7 @@ func _init():
 	dir.list_dir_end()
 
 	print("EDGE_CASES Results: %d passed, %d failed" % [passed, failed])
-	quit(0 if failed == 0 else 1)
+	_quit_with(0 if failed == 0 else 1)
 
 func _check_one(ba, cfg, adapter, gd_path: String, exp_path: String) -> bool:
 	var fh = load("res://addons/gdscript_complexity/src/gd3/file_helper.gd").new()
