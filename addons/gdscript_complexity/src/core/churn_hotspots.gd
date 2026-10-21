@@ -79,7 +79,9 @@ func _file_exists(path: String) -> bool:
 		return bool(ClassDB.class_call_static("FileAccess", "file_exists", path))
 	if not ClassDB.class_exists("File"):
 		return false
-	var f = ClassDB.instance("File")
+	# Untyped ref: G4 parse-rejects ClassDB.instance(), G3 lacks instantiate().
+	var class_db = ClassDB
+	var f = class_db.call("instance", "File")
 	if f == null:
 		return false
 	var ok = bool(f.call("file_exists", path))
